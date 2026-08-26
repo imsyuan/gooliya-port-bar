@@ -14,6 +14,12 @@ A lightweight macOS menu bar app that scans your locally listening ports — npm
 - Optional launch-at-login
 - Lives entirely in the menu bar — no Dock icon
 
+## Install
+
+Download the latest `.dmg` from [Releases](https://github.com/imsyuan/gooliya-port-hq/releases), open it, and drag **Gooliya Port HQ** into Applications.
+
+> The app isn't signed with an Apple Developer ID, so on first launch Gatekeeper will refuse to open it. Right-click the app → **Open** to bypass this once. Builds are currently Apple Silicon (M1/M2/M3/M4) only.
+
 ## Tech Stack
 
 - [Tauri v2](https://tauri.app/) (Rust) for the native shell, tray icon, and window management
