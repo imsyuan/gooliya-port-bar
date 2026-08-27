@@ -148,7 +148,7 @@
   <header>
     <div class="header-left">
       <span class="logo">⬡</span>
-      <span class="title">Gooliya Port HQ</span>
+      <span class="title">Gooliya Port Bar</span>
       {#if !portsLoading && displayPorts.length > 0}
         <span class="badge">{displayPorts.length}</span>
       {/if}

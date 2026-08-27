@@ -1,4 +1,4 @@
-# Gooliya Port HQ
+# Gooliya Port Bar
 
 一個輕量的 macOS 選單列(menu bar)小工具,自動掃描本機正在監聽的 port —— npm/Vite/Next/Astro 開發伺服器以及 Docker container —— 集中顯示在一個小視窗裡,支援釘選、改名、一鍵在瀏覽器開啟。
 
@@ -16,7 +16,7 @@ English: [README.md](./README.md)
 
 ## 安裝
 
-到 [Releases](https://github.com/imsyuan/gooliya-port-hq/releases) 下載最新的 `.dmg`,開啟後把 **Gooliya Port HQ** 拖進 Applications 資料夾即可。
+到 [Releases](https://github.com/imsyuan/gooliya-port-bar/releases) 下載最新的 `.dmg`,開啟後把 **Gooliya Port Bar** 拖進 Applications 資料夾即可。
 
 > 這個 app 沒有用 Apple Developer ID 簽章,第一次開啟會被 Gatekeeper 擋下。對 app 點右鍵 → **打開**,就能繞過這次警告。目前 build 只支援 Apple Silicon(M1/M2/M3/M4)。
 
