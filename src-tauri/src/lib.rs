@@ -205,7 +205,7 @@ pub fn run() {
             window.set_skip_taskbar(true).ok();
             apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, Some(14.0)).ok();
 
-            let quit_item = MenuItem::with_id(app, "quit", "結束 HQ", true, None::<&str>)?;
+            let quit_item = MenuItem::with_id(app, "quit", "結束 Port Bar", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&quit_item])?;
 
             let tray = app.tray_by_id("main").unwrap();

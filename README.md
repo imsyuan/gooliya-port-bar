@@ -1,4 +1,4 @@
-# Gooliya Port HQ
+# Gooliya Port Bar
 
 A lightweight macOS menu bar app that scans your locally listening ports — npm/Vite/Next/Astro dev servers and Docker containers — and shows them in one popover, with pin, rename, and one-click open in browser.
 
@@ -16,7 +16,7 @@ A lightweight macOS menu bar app that scans your locally listening ports — npm
 
 ## Install
 
-Download the latest `.dmg` from [Releases](https://github.com/imsyuan/gooliya-port-hq/releases), open it, and drag **Gooliya Port HQ** into Applications.
+Download the latest `.dmg` from [Releases](https://github.com/imsyuan/gooliya-port-bar/releases), open it, and drag **Gooliya Port Bar** into Applications.
 
 > The app isn't signed with an Apple Developer ID, so on first launch Gatekeeper will refuse to open it. Right-click the app → **Open** to bypass this once. Builds are currently Apple Silicon (M1/M2/M3/M4) only.
 

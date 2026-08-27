@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Gooliya Port HQ",
+  "productName": "Gooliya Port Bar",
   "version": "0.1.0",
-  "identifier": "com.gooliya.hq",
+  "identifier": "com.gooliya.portbar",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Gooliya Port HQ",
+        "title": "Gooliya Port Bar",
         "width": 360,
         "height": 520,
         "visible": false,

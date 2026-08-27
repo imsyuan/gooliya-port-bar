@@ -5,6 +5,6 @@
     <key>LSUIElement</key>
     <true/>
     <key>NSSystemAdministrationUsageDescription</key>
-    <string>Gooliya Port HQ needs this to scan running processes and ports.</string>
+    <string>Gooliya Port Bar needs this to scan running processes and ports.</string>
 </dict>
 </plist>

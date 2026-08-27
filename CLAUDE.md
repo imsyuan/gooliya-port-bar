@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-"Gooliya Port HQ" — a macOS menu-bar (tray) Tauri app that scans locally listening ports (Node/npm dev servers and Docker containers) and shows them in a small popover with pin/rename/open-in-browser actions. Frontend is SvelteKit (Svelte 5, static SPA), backend is Rust (Tauri v2).
+"Gooliya Port Bar" — a macOS menu-bar (tray) Tauri app that scans locally listening ports (Node/npm dev servers and Docker containers) and shows them in a small popover with pin/rename/open-in-browser actions. Frontend is SvelteKit (Svelte 5, static SPA), backend is Rust (Tauri v2).
 
 ## Commands
 
@@ -42,9 +42,9 @@ Single-window, single-page app — there is no routing beyond the one page (`src
 
 App setup (in `run()`) wires up macOS-specific tray/menu behavior: an `Accessory` activation policy (no Dock icon), a vibrancy effect on the window, a tray icon with a left-click handler that toggles/positions the popover window directly under the tray icon (physical-pixel math accounts for display scale factor), and window auto-hide on focus loss. This tray-popover behavior is macOS-centric — if extending to other platforms, expect to touch this code.
 
-**Frontend (`src/routes/+page.svelte`)** is a single Svelte 5 component (uses runes: `$state`, `$derived.by`) that owns all UI state: raw port list from `get_ports`, prefs from `get_prefs`/`save_prefs`, inline rename editing, pin toggling (pinned entries sort first), and an autostart toggle via `@tauri-apps/plugin-autostart`. Notably it resizes the actual OS window to fit content height after each port scan (`fitWindow`, via `getCurrentWindow().setSize`), since the window is a fixed-width (360px) popover with no natural scroll chrome. Ports are re-scanned automatically when the window regains focus.
+**Frontend (`src/routes/+page.svelte`)** is a single Svelte 5 component (uses runes: `$state`, `$derived.by`, `$effect`) that owns all UI state: raw port list from `get_ports`, prefs from `get_prefs`/`save_prefs`, inline rename editing, pin toggling (pinned entries sort first), and an autostart toggle via `@tauri-apps/plugin-autostart`. A `$effect` re-fits the actual OS window to content height (`fitWindow`, via `getCurrentWindow().setSize`, measuring `.app`'s own `getBoundingClientRect().height` — not `document.documentElement.scrollHeight`, which over-measures) any time `portsLoading`/`scanError`/`displayPorts` change, since the window is a fixed-width (360px) popover with no natural scroll chrome. Ports are re-scanned automatically when the window regains focus.
 
-**Permissions** are scoped in `src-tauri/capabilities/default.json` (Tauri v2 capability system) — when adding a new plugin or a command that needs a new permission, it must be added there or the frontend call will be silently denied at runtime.
+**Permissions** are scoped in `src-tauri/capabilities/default.json` (Tauri v2 capability system) — when adding a new plugin or a command that needs a new permission, it must be added there or the frontend call will be silently denied at runtime with a rejected promise (not a compile error, and easy to miss if the call site doesn't catch it). Notably, `core:default` only covers read-only window queries (`allow-inner-size`, `allow-scale-factor`, etc.) — any state-mutating window call from JS (`setSize`, `setPosition`, `hide`, `show`, `setFocus`, ...) needs its own explicit `core:window:allow-*` permission; `core:window:allow-set-size` is already added for `fitWindow`.
 
 ## Notes
 
