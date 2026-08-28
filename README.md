@@ -13,6 +13,7 @@ A lightweight macOS menu bar app that scans your locally listening ports — npm
 - Auto-refreshes when the popover regains focus, or manually via the refresh button
 - Optional launch-at-login
 - Lives entirely in the menu bar — no Dock icon
+- Single-instance — relaunching the app just focuses the existing popover instead of opening a duplicate
 
 ## Install
 
