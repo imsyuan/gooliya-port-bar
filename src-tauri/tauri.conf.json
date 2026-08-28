@@ -32,7 +32,7 @@
     "trayIcon": {
       "id": "main",
       "iconPath": "icons/tray.png",
-      "iconAsTemplate": true
+      "iconAsTemplate": false
     }
   },
   "bundle": {
