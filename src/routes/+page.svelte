@@ -147,6 +147,14 @@
     await openUrl(`http://localhost:${port}`);
   }
 
+  async function openHomepage() {
+    await openUrl('https://gooliya.com');
+  }
+
+  async function openIssues() {
+    await openUrl('https://github.com/imsyuan/gooliya-port-bar/issues');
+  }
+
   async function loadAutostart() {
     try { autostart = await isEnabled(); } catch { autostart = false; }
   }
@@ -284,6 +292,11 @@
       <span class="thumb"></span>
     </button>
   </footer>
+
+  <div class="credits">
+    <span class="credits-text">Made by 昌筱軒 <button class="credits-link" onclick={openHomepage}>@Gooliya</button></span>
+    <button class="issue-btn" onclick={openIssues}>提出 Issue</button>
+  </div>
 </div>
 
 <style>
@@ -455,4 +468,31 @@
   }
   .toggle:not(.on) .thumb { left: 3px; }
   .toggle.on .thumb { left: 17px; }
+
+  .credits {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 14px; gap: 8px;
+    border-top: 0.5px solid rgba(255, 255, 255, 0.05);
+  }
+  .credits-text {
+    font-size: 10px; color: rgba(255, 255, 255, 0.3);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .credits-link {
+    border: none; background: none; padding: 0; margin: 0;
+    font: inherit; color: rgba(255, 255, 255, 0.45);
+    cursor: pointer; transition: color 0.15s;
+  }
+  .credits-link:hover { color: #0a84ff; }
+
+  .issue-btn {
+    flex-shrink: 0; border: 0.5px solid rgba(255, 255, 255, 0.14);
+    background: none; border-radius: 99px; padding: 3px 9px;
+    font-size: 10px; font-weight: 500; color: rgba(255, 255, 255, 0.5);
+    cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .issue-btn:hover {
+    color: #f5f5f7; border-color: rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.06);
+  }
 </style>
