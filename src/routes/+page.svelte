@@ -32,6 +32,9 @@
   let editingValue = $state('');
   let autostart = $state(false);
   let autostartLoading = $state(false);
+  let confirmingRemove = $state<number | null>(null);
+  let removingPort = $state<number | null>(null);
+  let removeError = $state<{ port: number; message: string } | null>(null);
 
   let displayPorts = $derived.by(() => {
     const entries: DisplayEntry[] = rawPorts.map(p => {
@@ -65,6 +68,7 @@
     portsLoading;
     scanError;
     displayPorts;
+    removeError;
     fitWindow();
   });
 
@@ -98,6 +102,29 @@
     const current = prefs[key] ?? { pinned: false };
     prefs = { ...prefs, [key]: { ...current, pinned: !current.pinned } };
     await savePrefs();
+  }
+
+  function startRemoveConfirm(port: number) {
+    removeError = null;
+    confirmingRemove = port;
+  }
+
+  function cancelRemoveConfirm(port: number) {
+    if (confirmingRemove === port) confirmingRemove = null;
+  }
+
+  async function confirmRemove(entry: DisplayEntry) {
+    removingPort = entry.port;
+    removeError = null;
+    try {
+      await invoke('kill_port', { port: entry.port, portType: entry.port_type, project: entry.project });
+    } catch (e) {
+      removeError = { port: entry.port, message: String(e) };
+    } finally {
+      confirmingRemove = null;
+      removingPort = null;
+      await loadPorts();
+    }
   }
 
   function startEdit(entry: DisplayEntry) {
@@ -218,10 +245,33 @@
                   <span class="pid">PID {entry.pid}</span>
                 </div>
               </button>
+              <button class="remove-btn" class:confirming={confirmingRemove === entry.port}
+                disabled={removingPort === entry.port}
+                onclick={(e) => {
+                  e.stopPropagation();
+                  if (confirmingRemove === entry.port) confirmRemove(entry);
+                  else startRemoveConfirm(entry.port);
+                }}
+                onblur={() => cancelRemoveConfirm(entry.port)}
+                aria-label={confirmingRemove === entry.port ? 'Confirm remove' : 'Remove'}
+              >
+                {#if confirmingRemove === entry.port}
+                  <span class="remove-confirm-text">確定?</span>
+                {:else}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                {/if}
+              </button>
               <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <path d="M9 18l6-6-6-6"/>
               </svg>
             </div>
+            {#if removeError?.port === entry.port}
+              <div class="remove-error">{removeError.message}</div>
+            {/if}
           </li>
         {/each}
       </ul>
@@ -351,6 +401,23 @@
 
   .pid { font-size: 10px; color: rgba(255, 255, 255, 0.2); font-variant-numeric: tabular-nums; }
   .chevron { color: rgba(255, 255, 255, 0.18); flex-shrink: 0; transition: color 0.12s; }
+
+  .remove-btn {
+    display: flex; align-items: center; justify-content: center;
+    height: 20px; min-width: 20px; padding: 0 5px;
+    border: none; background: none; border-radius: 5px;
+    cursor: pointer; color: rgba(255, 255, 255, 0.15);
+    flex-shrink: 0; transition: color 0.15s, background 0.15s;
+  }
+  .remove-btn:hover { color: rgba(255, 69, 58, 0.8); background: rgba(255, 69, 58, 0.1); }
+  .remove-btn.confirming { color: #ff453a; background: rgba(255, 69, 58, 0.18); }
+  .remove-btn:disabled { opacity: 0.4; cursor: default; }
+  .remove-confirm-text { font-size: 10px; font-weight: 600; white-space: nowrap; }
+
+  .remove-error {
+    padding: 0 12px 7px 33px;
+    font-size: 10px; color: #ff453a;
+  }
 
   .state-center {
     display: flex; align-items: center; justify-content: center;

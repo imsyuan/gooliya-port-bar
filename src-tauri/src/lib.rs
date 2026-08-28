@@ -152,6 +152,58 @@ async fn get_ports() -> Result<Vec<PortEntry>, String> {
     Ok(scan_ports())
 }
 
+fn find_pid_for_port(port: u16) -> Option<u32> {
+    let output = Command::new("/usr/sbin/lsof")
+        .args(["-i", &format!(":{port}"), "-P", "-n", "-t"])
+        .output()
+        .ok()?;
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    stdout.lines().next()?.trim().parse::<u32>().ok()
+}
+
+fn kill_port_impl(port: u16, port_type: &str, project: &str) -> Result<(), String> {
+    match port_type {
+        "npm" => {
+            let pid = find_pid_for_port(port)
+                .ok_or_else(|| format!("port {port} 已無服務在監聽,可能已經關閉"))?;
+            let status = Command::new("kill")
+                .arg(pid.to_string())
+                .status()
+                .map_err(|e| e.to_string())?;
+            if status.success() {
+                Ok(())
+            } else {
+                Err(format!("終止行程 {pid} 失敗"))
+            }
+        }
+        "docker" => {
+            if project.is_empty() {
+                return Err("找不到容器名稱,無法停止服務".to_string());
+            }
+            let output = Command::new("docker")
+                .args(["stop", project])
+                .output()
+                .map_err(|e| e.to_string())?;
+            if output.status.success() {
+                Ok(())
+            } else {
+                let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+                Err(if stderr.is_empty() {
+                    format!("停止容器 {project} 失敗")
+                } else {
+                    stderr
+                })
+            }
+        }
+        other => Err(format!("不支援的服務類型:{other}")),
+    }
+}
+
+#[tauri::command]
+async fn kill_port(port: u16, port_type: String, project: String) -> Result<(), String> {
+    kill_port_impl(port, &port_type, &project)
+}
+
 #[tauri::command]
 fn quit_app(app: tauri::AppHandle) {
     app.exit(0);
@@ -267,7 +319,7 @@ pub fn run() {
             }
         })
         .invoke_handler(tauri::generate_handler![
-            get_ports, get_prefs, save_prefs, quit_app
+            get_ports, get_prefs, save_prefs, quit_app, kill_port
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -310,5 +362,54 @@ mod tests {
         assert_eq!(entries[0].port, 3000);
         assert_eq!(entries[1].port, 5173);
         assert_eq!(entries[1].project, "a");
+    }
+
+    #[test]
+    fn test_find_pid_for_port_resolves_current_holder() {
+        use std::net::TcpListener;
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let port = listener.local_addr().unwrap().port();
+        let found = find_pid_for_port(port);
+        assert_eq!(found, Some(std::process::id()));
+        drop(listener);
+    }
+
+    fn free_port() -> u16 {
+        use std::net::TcpListener;
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let port = listener.local_addr().unwrap().port();
+        drop(listener);
+        port
+    }
+
+    #[test]
+    fn test_find_pid_for_port_none_when_nothing_listening() {
+        assert_eq!(find_pid_for_port(free_port()), None);
+    }
+
+    #[test]
+    fn test_kill_port_impl_npm_missing_target_returns_error() {
+        let result = kill_port_impl(free_port(), "npm", "");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_kill_port_impl_docker_missing_project_returns_error() {
+        let result = kill_port_impl(3000, "docker", "");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_kill_port_impl_docker_nonexistent_container_returns_error() {
+        // Uses a name that cannot collide with a real container, so this never
+        // touches an actual running container even if docker is installed.
+        let result = kill_port_impl(3000, "docker", "kill-port-service-test-nonexistent-container-xyz");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_kill_port_impl_unsupported_type_returns_error() {
+        let result = kill_port_impl(3000, "unknown", "");
+        assert!(result.is_err());
     }
 }
