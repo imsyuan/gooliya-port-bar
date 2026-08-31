@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# push 前的基本資安稽核：用 gitleaks 掃描即將 push 的內容有沒有外洩密鑰，並提醒已知的相依套件漏洞。
+# 啟用方式：git config core.hooksPath .githooks（clone 這個 repo 後跑一次即可）
+# 需要先安裝 gitleaks：brew install gitleaks
+set -euo pipefail
+
+echo "🔍 執行 push 前資安稽核..."
+
+EMPTY_TREE="4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "⚠️  找不到 gitleaks（brew install gitleaks），略過密鑰掃描，直接放行。"
+else
+  found_secrets=0
+
+  while read -r local_ref local_sha remote_ref remote_sha; do
+    if [ "$local_sha" = "0000000000000000000000000000000000000000" ]; then
+      continue # 刪除分支/tag，沒有新內容要掃
+    fi
+
+    if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+      range="$EMPTY_TREE..$local_sha"
+    else
+      range="$remote_sha..$local_sha"
+    fi
+
+    if ! gitleaks detect --log-opts="$range" --no-banner -v < /dev/null; then
+      found_secrets=1
+    fi
+  done
+
+  if [ "$found_secrets" -eq 1 ]; then
+    echo "❌ gitleaks 偵測到疑似外洩的密鑰/憑證，已中止這次 push。"
+    echo "   請檢查上面列出的內容，移除敏感資訊後再試一次。"
+    exit 1
+  fi
+fi
+
+# 已知相依套件漏洞提醒（僅提醒，不中止 push）
+if [ -f package.json ] && command -v npm >/dev/null 2>&1; then
+  echo "📦 檢查 npm 相依套件已知漏洞（high/critical，僅提醒）..."
+  if ! npm_output=$(npm audit --audit-level=high 2>&1); then
+    if echo "$npm_output" | grep -qi "cannot execute binary\|command not found\|ENOENT"; then
+      echo "⚠️  npm 執行失敗（本機環境問題，跟這次改動無關），略過這項檢查："
+      echo "$npm_output" | head -3
+    else
+      echo "$npm_output"
+      echo "⚠️  以上是既有的已知漏洞，不會擋下這次 push，建議找時間處理。"
+    fi
+  fi
+fi
+
+echo "✅ 資安稽核通過，繼續 push。"

@@ -33,6 +33,12 @@ English: [README.md](./README.md)
 
 需要 Node.js,以及你的平台對應的 [Tauri 前置需求](https://v2.tauri.app/start/prerequisites/)(Rust 工具鏈等)。
 
+這個 repo 附了一個 `pre-push` hook,用 [gitleaks](https://github.com/gitleaks/gitleaks)(`brew install gitleaks`)在 push 之前掃描有沒有外洩的密鑰。clone 完之後跑一次即可啟用:
+
+```bash
+git config core.hooksPath .githooks
+```
+
 ```bash
 npm install
 

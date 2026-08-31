@@ -33,6 +33,12 @@ Download the latest `.dmg` from [Releases](https://github.com/imsyuan/gooliya-po
 
 Requires Node.js and the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) (Rust toolchain, etc.) for your platform.
 
+This repo ships a `pre-push` hook that scans outgoing commits for leaked secrets with [gitleaks](https://github.com/gitleaks/gitleaks) (`brew install gitleaks`) before allowing a push. Enable it once after cloning:
+
+```bash
+git config core.hooksPath .githooks
+```
+
 ```bash
 npm install
 

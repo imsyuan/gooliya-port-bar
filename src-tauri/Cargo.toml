@@ -1,8 +1,8 @@
 [package]
 name = "hq-app"
 version = "0.2.1"
-description = "A Tauri App"
-authors = ["you"]
+description = "A lightweight macOS menu bar app that scans local npm/Docker dev ports, with pin, rename, and one-click open"
+authors = ["Gooliya"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
