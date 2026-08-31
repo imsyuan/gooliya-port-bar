@@ -4,7 +4,9 @@
 
 一個輕量的 macOS 選單列(menu bar)小工具,自動掃描本機正在監聽的 port —— npm/Vite/Next/Astro 開發伺服器以及 Docker container —— 集中顯示在一個小視窗裡,支援釘選、改名、一鍵在瀏覽器開啟。
 
-English: [README.md](./README.md)
+English: [README.md](./README.md) | 日本語: [README.ja.md](./README.ja.md)
+
+官網: [port-bar.gooliya.com](https://port-bar.gooliya.com/)
 
 ## 功能
 
@@ -12,6 +14,7 @@ English: [README.md](./README.md)
 - 點擊 port 項目直接用預設瀏覽器開啟
 - 釘選常用項目,固定在清單最上方
 - 幫任一項目自訂顯示名稱
+- 直接在清單裡移除服務 —— 終止對應的行程(npm/node)或停止 Docker container,執行前有二段式內嵌確認
 - 視窗重新取得焦點時自動重新掃描,也可手動點擊重新整理
 - 可選擇開機自動啟動
 - 完全常駐選單列,不佔用 Dock

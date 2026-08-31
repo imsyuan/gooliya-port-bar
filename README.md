@@ -4,7 +4,9 @@
 
 A lightweight macOS menu bar app that scans your locally listening ports — npm/Vite/Next/Astro dev servers and Docker containers — and shows them in one popover, with pin, rename, and one-click open in browser.
 
-繁體中文說明: [README.zh-TW.md](./README.zh-TW.md)
+繁體中文說明: [README.zh-TW.md](./README.zh-TW.md) | 日本語: [README.ja.md](./README.ja.md)
+
+Website: [port-bar.gooliya.com](https://port-bar.gooliya.com/)
 
 ## Features
 
@@ -12,6 +14,7 @@ A lightweight macOS menu bar app that scans your locally listening ports — npm
 - Click a port to open it in your default browser
 - Pin favorites to keep them at the top of the list
 - Rename any entry with a custom label
+- Remove a service directly from the list — kills the underlying process (npm/node) or stops the Docker container, with a two-step inline confirmation before it acts
 - Auto-refreshes when the popover regains focus, or manually via the refresh button
 - Optional launch-at-login
 - Lives entirely in the menu bar — no Dock icon
