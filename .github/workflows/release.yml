@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build Tauri app
+        run: npm run tauri build -- --target universal-apple-darwin
+
+      - name: List build artifacts (debug)
+        run: find src-tauri/target -name "*.dmg" -o -name "*.app" | head -20
+
+      - name: Add a stable-named copy for direct-download links
+        working-directory: src-tauri/target/universal-apple-darwin/release/bundle/dmg
+        run: cp "$(ls *.dmg | head -n1)" "Gooliya-Port-Bar.dmg"
+
+      - name: Generate checksums
+        working-directory: src-tauri/target/universal-apple-darwin/release/bundle/dmg
+        run: shasum -a 256 *.dmg > checksums.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+            src-tauri/target/universal-apple-darwin/release/bundle/dmg/checksums.txt
+          generate_release_notes: true

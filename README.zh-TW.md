@@ -21,7 +21,7 @@ English: [README.md](./README.md)
 
 到 [Releases](https://github.com/imsyuan/gooliya-port-bar/releases) 下載最新的 `.dmg`,開啟後把 **Gooliya Port Bar** 拖進 Applications 資料夾即可。
 
-> 這個 app 沒有用 Apple Developer ID 簽章,第一次開啟會被 Gatekeeper 擋下。對 app 點右鍵 → **打開**,就能繞過這次警告。目前 build 只支援 Apple Silicon(M1/M2/M3/M4)。
+> 這個 app 沒有用 Apple Developer ID 簽章,第一次開啟時 macOS 會先跳出確認畫面。到「**系統設定 → 隱私權與安全性**」點一下「**強制打開**」,輸入密碼或用 Touch ID 確認即可,之後開啟都不會再詢問。Build 是 Universal Binary,Apple Silicon 與 Intel Mac 都能安裝。
 
 ## 技術架構
 

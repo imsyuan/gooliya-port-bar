@@ -21,7 +21,7 @@ A lightweight macOS menu bar app that scans your locally listening ports — npm
 
 Download the latest `.dmg` from [Releases](https://github.com/imsyuan/gooliya-port-bar/releases), open it, and drag **Gooliya Port Bar** into Applications.
 
-> The app isn't signed with an Apple Developer ID, so on first launch Gatekeeper will refuse to open it. Right-click the app → **Open** to bypass this once. Builds are currently Apple Silicon (M1/M2/M3/M4) only.
+> The app isn't signed with an Apple Developer ID, so on first launch macOS will ask you to confirm before opening it. Go to **System Settings → Privacy & Security** and click **Open Anyway**, then confirm with your password or Touch ID — you only need to do this once. Builds are Universal Binaries and run on both Apple Silicon and Intel Macs.
 
 ## Tech Stack
 
