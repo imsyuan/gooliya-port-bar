@@ -22,9 +22,22 @@ English: [README.md](./README.md) | 日本語: [README.ja.md](./README.ja.md)
 
 ## 安裝
 
-到 [Releases](https://github.com/imsyuan/gooliya-port-bar/releases) 下載最新的 `.dmg`,開啟後把 **Gooliya Port Bar** 拖進 Applications 資料夾即可。
+1. **下載 Gooliya Port Bar** —— 到 [Releases](https://github.com/imsyuan/gooliya-port-bar/releases/latest) 下載最新的 `.dmg`,同一個檔案同時支援 **Apple Silicon** 與 **Intel** Mac。
+2. **安裝** —— 把 `Gooliya Port Bar.app` 拖進 Applications 資料夾,雙擊打開。第一次執行時系統會提示確認,到「**系統設定 → 隱私權與安全性**」點一下「**強制打開**」,輸入密碼或用 Touch ID 確認即可,之後開啟都不會再詢問。
 
-> 這個 app 沒有用 Apple Developer ID 簽章,第一次開啟時 macOS 會先跳出確認畫面。到「**系統設定 → 隱私權與安全性**」點一下「**強制打開**」,輸入密碼或用 Touch ID 確認即可,之後開啟都不會再詢問。Build 是 Universal Binary,Apple Silicon 與 Intel Mac 都能安裝。
+   <details>
+   <summary>查看安裝步驟圖解</summary>
+   <br>
+
+   <img src="./assets/install-1.png" width="200" alt="把 Gooliya Port Bar.app 拖進 Applications 資料夾" />
+   <img src="./assets/install-2.png" width="200" alt="第一次打開時系統顯示的確認提示" />
+   <img src="./assets/install-3.png" width="200" alt="在系統設定的隱私權與安全性頁面點一下強制打開" />
+   <img src="./assets/install-4.png" width="200" alt="再次確認要打開這個 App" />
+   <img src="./assets/install-5.png" width="200" alt="輸入密碼或使用 Touch ID 完成授權" />
+
+   </details>
+
+3. **開始使用** —— 打開後 app 會常駐在選單列,本機正在跑的開發伺服器與 Docker container 會自動被掃描出來,點擊就能在瀏覽器打開。
 
 ## 技術架構
 
@@ -42,16 +55,27 @@ English: [README.md](./README.md) | 日本語: [README.ja.md](./README.ja.md)
 git config core.hooksPath .githooks
 ```
 
+安裝相依套件:
+
 ```bash
 npm install
+```
 
-# 完整 app(Rust + 原生視窗)—— 要測試 Tauri command 一定要用這個
+完整 app(Rust + 原生視窗)—— 要測試 Tauri command 一定要用這個:
+
+```bash
 npm run tauri dev
+```
 
-# 只跑前端,在一般瀏覽器分頁開(沒有 Tauri 後端,invoke() 呼叫會失敗)
+只跑前端,在一般瀏覽器分頁開(沒有 Tauri 後端,`invoke()` 呼叫會失敗):
+
+```bash
 npm run dev
+```
 
-# 前端型別檢查
+前端型別檢查:
+
+```bash
 npm run check
 ```
 

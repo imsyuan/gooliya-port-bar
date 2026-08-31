@@ -22,9 +22,22 @@ Website: [port-bar.gooliya.com](https://port-bar.gooliya.com/)
 
 ## Install
 
-Download the latest `.dmg` from [Releases](https://github.com/imsyuan/gooliya-port-bar/releases), open it, and drag **Gooliya Port Bar** into Applications.
+1. **Download Gooliya Port Bar** — grab the latest `.dmg` from [Releases](https://github.com/imsyuan/gooliya-port-bar/releases/latest). The same file works on both **Apple Silicon** and **Intel** Macs.
+2. **Install it** — drag `Gooliya Port Bar.app` into your Applications folder, then double-click to open it. The first time, macOS will ask you to confirm — go to **System Settings → Privacy & Security** and click **Open Anyway**, then confirm with your password or Touch ID. You won't be asked again after that.
 
-> The app isn't signed with an Apple Developer ID, so on first launch macOS will ask you to confirm before opening it. Go to **System Settings → Privacy & Security** and click **Open Anyway**, then confirm with your password or Touch ID — you only need to do this once. Builds are Universal Binaries and run on both Apple Silicon and Intel Macs.
+   <details>
+   <summary>See the install screenshots</summary>
+   <br>
+
+   <img src="./assets/install-1.png" width="200" alt="Drag Gooliya Port Bar.app into the Applications folder" />
+   <img src="./assets/install-2.png" width="200" alt="The confirmation prompt shown on first launch" />
+   <img src="./assets/install-3.png" width="200" alt="Click Open Anyway in Privacy & Security settings" />
+   <img src="./assets/install-4.png" width="200" alt="Confirm opening the app" />
+   <img src="./assets/install-5.png" width="200" alt="Authenticate with your password or Touch ID" />
+
+   </details>
+
+3. **Start using it** — once open, the app lives in your menu bar. Local dev servers and Docker containers are scanned automatically; click one to open it in your browser.
 
 ## Tech Stack
 
