@@ -2,7 +2,7 @@
 
 <img src="./assets/logo.png" alt="Gooliya Port Bar logo" width="120" />
 
-軽量な macOS メニューバー(menu bar)アプリです。ローカルでリッスン中のポート —— npm/Vite/Next/Astro の開発サーバーや Docker コンテナ —— を自動でスキャンし、1つのポップアップにまとめて表示します。ピン留め、名前変更、ブラウザでのワンクリック起動に対応。
+軽量な macOS メニューバー(menu bar)アプリです。ローカルでリッスン中のポート —— npm/Vite/Next/Astro の開発サーバーや Docker コンテナ —— を自動でスキャンし、1つのポップアップにまとめて表示します。ピン留め、名前変更、削除、ブラウザでのワンクリック起動に対応。
 
 English: [README.md](./README.md) | 繁體中文: [README.zh-TW.md](./README.zh-TW.md)
 

@@ -2,7 +2,7 @@
 
 <img src="./assets/logo.png" alt="Gooliya Port Bar logo" width="120" />
 
-A lightweight macOS menu bar app that scans your locally listening ports — npm/Vite/Next/Astro dev servers and Docker containers — and shows them in one popover, with pin, rename, and one-click open in browser.
+A lightweight macOS menu bar app that scans your locally listening ports — npm/Vite/Next/Astro dev servers and Docker containers — and shows them in one popover, with pin, rename, remove, and one-click open in browser.
 
 繁體中文說明: [README.zh-TW.md](./README.zh-TW.md) | 日本語: [README.ja.md](./README.ja.md)
 

@@ -2,7 +2,7 @@
 
 <img src="./assets/logo.png" alt="Gooliya Port Bar logo" width="120" />
 
-一個輕量的 macOS 選單列(menu bar)小工具,自動掃描本機正在監聽的 port —— npm/Vite/Next/Astro 開發伺服器以及 Docker container —— 集中顯示在一個小視窗裡,支援釘選、改名、一鍵在瀏覽器開啟。
+一個輕量的 macOS 選單列(menu bar)小工具,自動掃描本機正在監聽的 port —— npm/Vite/Next/Astro 開發伺服器以及 Docker container —— 集中顯示在一個小視窗裡,支援釘選、改名、移除、一鍵在瀏覽器開啟。
 
 English: [README.md](./README.md) | 日本語: [README.ja.md](./README.ja.md)
 
