@@ -8,6 +8,8 @@ English: [README.md](./README.md) | 繁體中文: [README.zh-TW.md](./README.zh-
 
 公式サイト: [port-bar.gooliya.com](https://port-bar.gooliya.com/)
 
+<img src="./assets/screenshot.png" alt="Gooliya Port Bar のポップアップ画面" width="360" />
+
 ## 機能
 
 - ローカルでリッスン中の全ポートを一覧表示。Node の開発サーバー(`vite`、`astro`、`next`、`tsx`/`ts-node` など)と Docker コンテナに対応

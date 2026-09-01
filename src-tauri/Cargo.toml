@@ -1,8 +1,8 @@
 [package]
 name = "hq-app"
 version = "0.2.1"
-description = "A lightweight macOS menu bar app that scans local npm/Docker dev ports, with pin, rename, and one-click open"
-authors = ["Gooliya"]
+description = "A lightweight macOS menu bar app that scans local npm/Docker dev ports, with pin, rename, remove, and one-click open in browser"
+authors = ["Gooliya <gooliya.dev@gmail.com>"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

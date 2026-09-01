@@ -1,7 +1,8 @@
 {
   "name": "gooliya-port-bar",
   "version": "0.2.1",
-  "description": "",
+  "description": "A lightweight macOS menu bar app that scans local npm/Docker dev ports, with pin, rename, remove, and one-click open in browser",
+  "author": "Gooliya <gooliya.dev@gmail.com> (https://gooliya.com)",
   "type": "module",
   "scripts": {
     "dev": "vite dev",

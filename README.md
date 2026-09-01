@@ -8,6 +8,8 @@ A lightweight macOS menu bar app that scans your locally listening ports — npm
 
 Website: [port-bar.gooliya.com](https://port-bar.gooliya.com/)
 
+<img src="./assets/screenshot.png" alt="Gooliya Port Bar popover screenshot" width="360" />
+
 ## Features
 
 - Lists all locally listening ports from Node dev servers (`vite`, `astro`, `next`, `tsx`/`ts-node`, ...) and Docker containers

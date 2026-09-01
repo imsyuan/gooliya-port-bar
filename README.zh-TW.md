@@ -8,6 +8,8 @@ English: [README.md](./README.md) | 日本語: [README.ja.md](./README.ja.md)
 
 官網: [port-bar.gooliya.com](https://port-bar.gooliya.com/)
 
+<img src="./assets/screenshot.png" alt="Gooliya Port Bar 彈出視窗截圖" width="360" />
+
 ## 功能
 
 - 列出本機所有正在監聽的 port,包含 Node 開發伺服器(`vite`、`astro`、`next`、`tsx`/`ts-node` 等)與 Docker container
