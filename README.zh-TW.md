@@ -10,7 +10,7 @@ English: [README.md](./README.md) | 日本語: [README.ja.md](./README.ja.md)
 
 <img src="./assets/screenshot.png" alt="Gooliya Port Bar 彈出視窗截圖" width="360" />
 
-[![觀看 28.5 秒操作影片](./assets/demo-poster.png)](./assets/demo.mp4)
+[![觀看 30 秒操作影片](./assets/demo-poster.png)](./assets/demo.mp4)
 
 ## 功能
 
