@@ -35,6 +35,9 @@
   let confirmingRemove = $state<number | null>(null);
   let removingPort = $state<number | null>(null);
   let removeError = $state<{ port: number; message: string } | null>(null);
+  let confirmingRemoveAll = $state(false);
+  let removingAll = $state(false);
+  let removeAllError = $state<string | null>(null);
 
   let displayPorts = $derived.by(() => {
     const entries: DisplayEntry[] = rawPorts.map(p => {
@@ -127,6 +130,33 @@
     }
   }
 
+  function openRemoveAllConfirm() {
+    removeAllError = null;
+    confirmingRemoveAll = true;
+  }
+
+  function cancelRemoveAllConfirm() {
+    if (removingAll) return;
+    confirmingRemoveAll = false;
+  }
+
+  async function confirmRemoveAll() {
+    removingAll = true;
+    removeAllError = null;
+    const targets = displayPorts;
+    const results = await Promise.allSettled(
+      targets.map(entry => invoke('kill_port', { port: entry.port, portType: entry.port_type, project: entry.project }))
+    );
+    const failedCount = results.filter(r => r.status === 'rejected').length;
+    removingAll = false;
+    await loadPorts();
+    if (failedCount > 0) {
+      removeAllError = `${failedCount} 個服務移除失敗,可能已自行關閉`;
+    } else {
+      confirmingRemoveAll = false;
+    }
+  }
+
   function startEdit(entry: DisplayEntry) {
     editingPort = entry.port;
     editingValue = entry.displayName;
@@ -189,6 +219,15 @@
       {/if}
     </div>
     <div class="header-actions">
+      {#if !portsLoading && displayPorts.length > 0}
+        <button class="icon-btn danger" onclick={openRemoveAllConfirm} disabled={removingAll} aria-label="Remove all">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6h18"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+      {/if}
       <button class="icon-btn" onclick={loadPorts} disabled={portsLoading} aria-label="Refresh">
         <svg class:spinning={portsLoading} xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
@@ -297,6 +336,24 @@
     <span class="credits-text">Made by 昌筱軒 <button class="credits-link" onclick={openHomepage}>@Gooliya</button></span>
     <button class="issue-btn" onclick={openIssues}>提出 Issue</button>
   </div>
+
+  {#if confirmingRemoveAll}
+    <div class="modal-backdrop" onclick={cancelRemoveAllConfirm} role="presentation">
+      <div class="modal-card" onclick={(e) => e.stopPropagation()} onkeydown={(e) => { if (e.key === 'Escape') cancelRemoveAllConfirm(); }} role="dialog" aria-modal="true" tabindex="-1">
+        <span class="modal-title">移除所有服務?</span>
+        <span class="modal-desc">將關閉目前 {displayPorts.length} 個正在監聽的服務,此動作無法復原。</span>
+        {#if removeAllError}
+          <span class="modal-error">{removeAllError}</span>
+        {/if}
+        <div class="modal-actions">
+          <button class="modal-btn cancel" onclick={cancelRemoveAllConfirm} disabled={removingAll}>取消</button>
+          <button class="modal-btn danger" onclick={confirmRemoveAll} disabled={removingAll}>
+            {removingAll ? '移除中…' : '移除全部'}
+          </button>
+        </div>
+      </div>
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -309,6 +366,7 @@
   }
 
   .app {
+    position: relative;
     width: 360px;
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -349,6 +407,7 @@
   .icon-btn:hover { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); }
   .icon-btn:disabled { opacity: 0.3; cursor: default; }
   .icon-btn.quit:hover { background: rgba(255, 59, 48, 0.15); color: #ff453a; }
+  .icon-btn.danger:hover { background: rgba(255, 69, 58, 0.15); color: #ff453a; }
 
   section { padding: 2px 0 4px; }
 
@@ -495,4 +554,41 @@
     color: #f5f5f7; border-color: rgba(255, 255, 255, 0.28);
     background: rgba(255, 255, 255, 0.06);
   }
+
+  .modal-backdrop {
+    position: absolute; inset: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0, 0, 0, 0.55);
+    border-radius: 14px;
+    padding: 20px;
+  }
+
+  .modal-card {
+    display: flex; flex-direction: column; gap: 6px;
+    width: 100%; max-width: 280px;
+    background: rgba(40, 40, 44, 0.95);
+    border: 0.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  .modal-title { font-size: 13px; font-weight: 700; color: #f5f5f7; }
+  .modal-desc { font-size: 11px; line-height: 1.5; color: rgba(255, 255, 255, 0.55); }
+  .modal-error { font-size: 11px; color: #ff453a; }
+
+  .modal-actions {
+    display: flex; justify-content: flex-end; gap: 6px; margin-top: 6px;
+  }
+
+  .modal-btn {
+    border: none; border-radius: 7px; padding: 5px 11px;
+    font-size: 11px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+  }
+  .modal-btn:disabled { opacity: 0.5; cursor: default; }
+  .modal-btn.cancel { background: rgba(255, 255, 255, 0.1); color: #f5f5f7; }
+  .modal-btn.cancel:hover:not(:disabled) { background: rgba(255, 255, 255, 0.16); }
+  .modal-btn.danger { background: #ff453a; color: #fff; }
+  .modal-btn.danger:hover:not(:disabled) { background: #ff6259; }
 </style>
