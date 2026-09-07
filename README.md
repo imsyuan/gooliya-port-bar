@@ -10,6 +10,8 @@ Website: [port-bar.gooliya.com](https://port-bar.gooliya.com/)
 
 <img src="./assets/screenshot.png" alt="Gooliya Port Bar popover screenshot" width="360" />
 
+[![Watch the 28.5s demo video](./assets/demo-poster.png)](./assets/demo.mp4)
+
 ## Features
 
 - Lists all locally listening ports from Node dev servers (`vite`, `astro`, `next`, `tsx`/`ts-node`, ...) and Docker containers
