@@ -17,6 +17,7 @@ Website: [port-bar.gooliya.com](https://port-bar.gooliya.com/)
 - Pin favorites to keep them at the top of the list
 - Rename any entry with a custom label
 - Remove a service directly from the list — kills the underlying process (npm/node) or stops the Docker container, with a two-step inline confirmation before it acts
+- Remove every listed service at once via a header button, with a confirmation dialog before it acts
 - Auto-refreshes when the popover regains focus, or manually via the refresh button
 - Optional launch-at-login
 - Lives entirely in the menu bar — no Dock icon
