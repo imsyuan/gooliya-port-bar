@@ -4,6 +4,10 @@ version = "0.2.2"
 description = "A lightweight macOS menu bar app that scans local npm/Docker dev ports, with pin, rename, remove, and one-click open in browser"
 authors = ["Gooliya <gooliya.dev@gmail.com>"]
 edition = "2021"
+# `tauri dev`/`tauri build` invoke `cargo run`/`cargo build` without `--bin`;
+# adding the port-bar-mcp binary made that ambiguous, so pin the default
+# explicitly to the GUI app.
+default-run = "hq-app"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -27,4 +31,11 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 regex = "1"
 window-vibrancy = "0.5"
+
+# Only used by the standalone `port-bar-mcp` binary (src/bin/port-bar-mcp.rs),
+# not by the GUI app itself. See design.md open question about splitting
+# these behind a Cargo feature flag if GUI binary size/build time matters.
+rmcp = { version = "3", features = ["server", "macros", "transport-io"] }
+tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread", "io-std"] }
+anyhow = "1"
 
