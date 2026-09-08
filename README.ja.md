@@ -97,6 +97,12 @@ cd src-tauri
 cargo test
 ```
 
+## スポンサー
+
+Gooliya Port Bar が役に立ったら、コーヒーをおごっていただけると嬉しいです ☕️
+
+[<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="41" width="174">](https://buymeacoffee.com/gooliya)
+
 ## ライセンス
 
 [MIT](./LICENSE)
