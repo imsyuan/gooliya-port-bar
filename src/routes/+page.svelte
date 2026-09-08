@@ -12,6 +12,37 @@
     project: string;
     cmd: string;
     pid: number;
+    uptime_seconds: number;
+    is_idle: boolean;
+  }
+
+  function formatUptime(seconds: number): string {
+    if (seconds < 60) return '剛啟動';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} 分鐘`;
+    const hours = Math.floor(minutes / 60);
+    const remMinutes = minutes % 60;
+    if (hours < 24) return `${hours} 小時 ${remMinutes} 分`;
+    const days = Math.floor(hours / 24);
+    const remHours = hours % 24;
+    return `${days} 天 ${remHours} 小時`;
+  }
+
+  const IDLE_WARN_SECONDS = 3 * 60 * 60; // 3 小時
+  const IDLE_DANGER_SECONDS = 24 * 60 * 60; // 1 天
+
+  type IdleLevel = 'normal' | 'warn' | 'danger';
+
+  function idleLevel(seconds: number): IdleLevel {
+    if (seconds >= IDLE_DANGER_SECONDS) return 'danger';
+    if (seconds >= IDLE_WARN_SECONDS) return 'warn';
+    return 'normal';
+  }
+
+  function idleTitle(level: IdleLevel): string | undefined {
+    if (level === 'danger') return '存活超過 1 天，可能忘記關了';
+    if (level === 'warn') return '存活超過 3 小時，留意一下';
+    return undefined;
   }
 
   interface PortPref {
@@ -268,7 +299,7 @@
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                 </svg>
               </button>
-              <div class="port-indicator {entry.port_type}"></div>
+              <div class="port-indicator {entry.port_type} {idleLevel(entry.uptime_seconds)}" title={idleTitle(idleLevel(entry.uptime_seconds))}></div>
               <button class="port-main" onclick={() => openPort(entry.port)}>
                 <div class="port-top">
                   <span class="port-num">:{entry.port}</span>
@@ -289,7 +320,8 @@
                 </div>
                 <div class="port-sub">
                   <span class="cmd-pill {entry.port_type}">{entry.cmd}</span>
-                  <span class="pid">PID {entry.pid}</span>
+                  <span class="uptime-pill {idleLevel(entry.uptime_seconds)}">{formatUptime(entry.uptime_seconds)}</span>
+                  <span class="pid-pill">PID {entry.pid}</span>
                 </div>
               </button>
               <button class="remove-btn" class:confirming={confirmingRemove === entry.port}
@@ -438,6 +470,8 @@
   .port-indicator { width: 3px; height: 30px; border-radius: 2px; flex-shrink: 0; }
   .port-indicator.npm { background: linear-gradient(180deg, #0a84ff, #0055d4); }
   .port-indicator.docker { background: linear-gradient(180deg, #30d158, #1a9e3d); }
+  .port-indicator.warn { background: linear-gradient(180deg, #ff9f0a, #c9770a); }
+  .port-indicator.danger { background: linear-gradient(180deg, #ff453a, #c22e26); }
 
   .port-main {
     flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px;
@@ -471,7 +505,10 @@
   .cmd-pill.npm { background: rgba(10, 132, 255, 0.18); color: #4fa8ff; }
   .cmd-pill.docker { background: rgba(48, 209, 88, 0.15); color: #32d74b; }
 
-  .pid { font-size: 10px; color: rgba(255, 255, 255, 0.2); font-variant-numeric: tabular-nums; }
+  .uptime-pill { font-size: 10px; font-weight: 500; padding: 1px 6px; border-radius: 99px; background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.45); }
+  .uptime-pill.warn { background: rgba(255, 159, 10, 0.16); color: #ff9f0a; }
+  .uptime-pill.danger { background: rgba(255, 69, 58, 0.16); color: #ff453a; }
+  .pid-pill { font-size: 10px; font-weight: 500; padding: 1px 6px; border-radius: 99px; background: rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.3); font-variant-numeric: tabular-nums; }
   .chevron { color: rgba(255, 255, 255, 0.18); flex-shrink: 0; transition: color 0.12s; }
 
   .remove-btn {
