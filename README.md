@@ -53,7 +53,7 @@ It's not bundled in the `.dmg` release yet; build it from source:
 
 ```bash
 cd src-tauri
-cargo build --release --bin port-bar-mcp
+cargo build --release --bin port-bar-mcp --features mcp-server
 ```
 
 Then point your MCP client at the built binary, e.g. in `.mcp.json`:
