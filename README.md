@@ -20,6 +20,7 @@ Website: [port-bar.gooliya.com](https://port-bar.gooliya.com/)
 - Rename any entry with a custom label
 - Remove a service directly from the list — kills the underlying process (npm/node) or stops the Docker container, with a two-step inline confirmation before it acts
 - Remove every listed service at once via a header button, with a confirmation dialog before it acts
+- Shows how long each service has been running, with a color-coded tag that flags likely-forgotten ones — orange past 3 hours, red past a day
 - Auto-refreshes when the popover regains focus, or manually via the refresh button
 - Optional launch-at-login
 - Lives entirely in the menu bar — no Dock icon
@@ -43,6 +44,29 @@ Website: [port-bar.gooliya.com](https://port-bar.gooliya.com/)
    </details>
 
 3. **Start using it** — once open, the app lives in your menu bar. Local dev servers and Docker containers are scanned automatically; click one to open it in your browser.
+
+## For AI coding agents (MCP)
+
+Gooliya Port Bar also ships a standalone, read-only [MCP](https://modelcontextprotocol.io/) server binary (`port-bar-mcp`) so an AI coding agent like Claude Code can check what's listening without you having to open the GUI. It talks stdio, doesn't open any network port, and only exposes two tools — `list_ports` and `list_idle_ports` — with no way to close or remove anything.
+
+It's not bundled in the `.dmg` release yet; build it from source:
+
+```bash
+cd src-tauri
+cargo build --release --bin port-bar-mcp
+```
+
+Then point your MCP client at the built binary, e.g. in `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "port-bar": {
+      "command": "/path/to/gooliya-port-bar/src-tauri/target/release/port-bar-mcp"
+    }
+  }
+}
+```
 
 ## Tech Stack
 

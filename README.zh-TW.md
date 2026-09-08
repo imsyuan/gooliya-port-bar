@@ -20,6 +20,7 @@ English: [README.md](./README.md) | 日本語: [README.ja.md](./README.ja.md)
 - 幫任一項目自訂顯示名稱
 - 直接在清單裡移除服務 —— 終止對應的行程(npm/node)或停止 Docker container,執行前有二段式內嵌確認
 - 在標題列一鍵移除目前所有服務,執行前會跳出確認視窗
+- 顯示每個服務已經跑多久,存活越久顏色標籤會變色提醒你可能忘記關了 —— 超過 3 小時變橘色,超過 1 天變紅色
 - 視窗重新取得焦點時自動重新掃描,也可手動點擊重新整理
 - 可選擇開機自動啟動
 - 完全常駐選單列,不佔用 Dock
@@ -43,6 +44,29 @@ English: [README.md](./README.md) | 日本語: [README.ja.md](./README.ja.md)
    </details>
 
 3. **開始使用** —— 打開後 app 會常駐在選單列,本機正在跑的開發伺服器與 Docker container 會自動被掃描出來,點擊就能在瀏覽器打開。
+
+## 給 AI coding agent 用(MCP)
+
+Gooliya Port Bar 也附了一個獨立、唯讀的 [MCP](https://modelcontextprotocol.io/) server 執行檔(`port-bar-mcp`),讓 Claude Code 這類 AI coding agent 不用打開 GUI 就能查詢目前有哪些 port 在跑。走 stdio,不開任何網路 port,只曝露兩個工具 —— `list_ports`、`list_idle_ports`,沒有任何關閉/移除的能力。
+
+目前還沒打包進 `.dmg` release,要自己從原始碼建置:
+
+```bash
+cd src-tauri
+cargo build --release --bin port-bar-mcp
+```
+
+再把 MCP client 指向建置出來的執行檔,例如寫進 `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "port-bar": {
+      "command": "/path/to/gooliya-port-bar/src-tauri/target/release/port-bar-mcp"
+    }
+  }
+}
+```
 
 ## 技術架構
 
