@@ -20,6 +20,7 @@ English: [README.md](./README.md) | 繁體中文: [README.zh-TW.md](./README.zh-
 - 各項目に分かりやすい表示名を設定できる
 - 一覧から直接サービスを削除 —— 対応するプロセス(npm/node)を終了するか Docker コンテナを停止する。実行前に二段階のインライン確認あり
 - ヘッダーのボタンで一覧中のすべてのサービスを一括削除。実行前に確認ダイアログを表示
+- 各サービスの稼働時間を表示し、放置されていそうなものは色付きタグで知らせる —— 3時間経過でオレンジ、1日経過で赤に変化
 - ウィンドウがフォーカスを取り戻すと自動で再スキャン。手動での更新にも対応
 - ログイン時の自動起動をオプションで設定可能
 - 完全にメニューバーに常駐し、Dock は占有しない
@@ -43,6 +44,29 @@ English: [README.md](./README.md) | 繁體中文: [README.zh-TW.md](./README.zh-
    </details>
 
 3. **使ってみる** —— 起動するとメニューバーに常駐します。ローカルの開発サーバーや Docker コンテナが自動でスキャンされ、クリックするだけでブラウザで開けます。
+
+## AI コーディングエージェント向け(MCP)
+
+Gooliya Port Bar には、読み取り専用の独立した [MCP](https://modelcontextprotocol.io/) サーバー実行ファイル(`port-bar-mcp`)も同梱されています。Claude Code のような AI コーディングエージェントが、GUI を開かなくても現在リッスン中のポートを確認できます。通信は stdio のみでネットワークポートは一切開かず、公開するツールも `list_ports` と `list_idle_ports` の2つだけ —— サービスを閉じたり削除したりする手段は提供していません。
+
+まだ `.dmg` の release には同梱されていないため、ソースからビルドしてください:
+
+```bash
+cd src-tauri
+cargo build --release --bin port-bar-mcp
+```
+
+ビルドした実行ファイルを MCP クライアントに指定します。例えば `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "port-bar": {
+      "command": "/path/to/gooliya-port-bar/src-tauri/target/release/port-bar-mcp"
+    }
+  }
+}
+```
 
 ## 技術スタック
 
