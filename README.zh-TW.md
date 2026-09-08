@@ -121,6 +121,12 @@ cd src-tauri
 cargo test
 ```
 
+## 贊助
+
+如果 Gooliya Port Bar 幫你省下時間，歡迎請我喝杯咖啡 ☕️
+
+[<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="41" width="174">](https://buymeacoffee.com/gooliya)
+
 ## 授權
 
 [MIT](./LICENSE)
