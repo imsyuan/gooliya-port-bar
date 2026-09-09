@@ -5,6 +5,10 @@
 //! the GUI popover. Read-only by design: it does not link against, and has
 //! no access to, the private `kill_port_impl` in `hq_app_lib` — closing a
 //! service is only ever done through the GUI's own confirmation flow.
+//!
+//! Lives in its own Cargo package (not a `[[bin]]` inside `src-tauri`) so
+//! that `tauri build` never sees it as one of the GUI app's own binary
+//! targets — see the comment in this package's Cargo.toml.
 
 use rmcp::{
     ErrorData as McpError, ServerHandler, ServiceExt,
