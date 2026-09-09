@@ -17,15 +17,15 @@
   }
 
   function formatUptime(seconds: number): string {
-    if (seconds < 60) return '剛啟動';
+    if (seconds < 60) return 'Just started';
     const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes} 分鐘`;
+    if (minutes < 60) return `${minutes}m`;
     const hours = Math.floor(minutes / 60);
     const remMinutes = minutes % 60;
-    if (hours < 24) return `${hours} 小時 ${remMinutes} 分`;
+    if (hours < 24) return `${hours}h ${remMinutes}m`;
     const days = Math.floor(hours / 24);
     const remHours = hours % 24;
-    return `${days} 天 ${remHours} 小時`;
+    return `${days}d ${remHours}h`;
   }
 
   const IDLE_WARN_SECONDS = 3 * 60 * 60; // 3 小時
@@ -40,8 +40,8 @@
   }
 
   function idleTitle(level: IdleLevel): string | undefined {
-    if (level === 'danger') return '存活超過 1 天，可能忘記關了';
-    if (level === 'warn') return '存活超過 3 小時，留意一下';
+    if (level === 'danger') return 'Running over 1 day — might be forgotten';
+    if (level === 'warn') return 'Running over 3 hours — worth a look';
     return undefined;
   }
 
