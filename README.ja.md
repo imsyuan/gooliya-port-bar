@@ -52,8 +52,8 @@ Gooliya Port Bar には、読み取り専用の独立した [MCP](https://modelc
 まだ `.dmg` の release には同梱されていないため、ソースからビルドしてください:
 
 ```bash
-cd src-tauri
-cargo build --release --bin port-bar-mcp --features mcp-server
+cd port-bar-mcp
+cargo build --release
 ```
 
 ビルドした実行ファイルを MCP クライアントに指定します。例えば `.mcp.json`:
@@ -62,7 +62,7 @@ cargo build --release --bin port-bar-mcp --features mcp-server
 {
   "mcpServers": {
     "port-bar": {
-      "command": "/path/to/gooliya-port-bar/src-tauri/target/release/port-bar-mcp"
+      "command": "/path/to/gooliya-port-bar/port-bar-mcp/target/release/port-bar-mcp"
     }
   }
 }

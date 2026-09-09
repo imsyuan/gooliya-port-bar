@@ -52,8 +52,8 @@ Gooliya Port Bar also ships a standalone, read-only [MCP](https://modelcontextpr
 It's not bundled in the `.dmg` release yet; build it from source:
 
 ```bash
-cd src-tauri
-cargo build --release --bin port-bar-mcp --features mcp-server
+cd port-bar-mcp
+cargo build --release
 ```
 
 Then point your MCP client at the built binary, e.g. in `.mcp.json`:
@@ -62,7 +62,7 @@ Then point your MCP client at the built binary, e.g. in `.mcp.json`:
 {
   "mcpServers": {
     "port-bar": {
-      "command": "/path/to/gooliya-port-bar/src-tauri/target/release/port-bar-mcp"
+      "command": "/path/to/gooliya-port-bar/port-bar-mcp/target/release/port-bar-mcp"
     }
   }
 }
