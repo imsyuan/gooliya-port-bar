@@ -53,7 +53,7 @@ Gooliya Port Bar には、読み取り専用の独立した [MCP](https://modelc
 
 ```bash
 cd src-tauri
-cargo build --release --bin port-bar-mcp
+cargo build --release --bin port-bar-mcp --features mcp-server
 ```
 
 ビルドした実行ファイルを MCP クライアントに指定します。例えば `.mcp.json`:

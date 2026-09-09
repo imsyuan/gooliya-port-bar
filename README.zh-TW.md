@@ -53,7 +53,7 @@ Gooliya Port Bar 也附了一個獨立、唯讀的 [MCP](https://modelcontextpro
 
 ```bash
 cd src-tauri
-cargo build --release --bin port-bar-mcp
+cargo build --release --bin port-bar-mcp --features mcp-server
 ```
 
 再把 MCP client 指向建置出來的執行檔,例如寫進 `.mcp.json`:

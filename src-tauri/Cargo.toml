@@ -33,9 +33,19 @@ regex = "1"
 window-vibrancy = "0.5"
 
 # Only used by the standalone `port-bar-mcp` binary (src/bin/port-bar-mcp.rs),
-# not by the GUI app itself. See design.md open question about splitting
-# these behind a Cargo feature flag if GUI binary size/build time matters.
-rmcp = { version = "3", features = ["server", "macros", "transport-io"] }
-tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread", "io-std"] }
-anyhow = "1"
+# not by the GUI app itself. Gated behind the `mcp-server` feature (see
+# [[bin]] below) so a plain `cargo build`/`tauri build` — which builds every
+# binary target in the package by default, regardless of `default-run` —
+# doesn't try to compile or bundle this one.
+rmcp = { version = "3", features = ["server", "macros", "transport-io"], optional = true }
+tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread", "io-std"], optional = true }
+anyhow = { version = "1", optional = true }
+
+[features]
+mcp-server = ["dep:rmcp", "dep:tokio", "dep:anyhow"]
+
+[[bin]]
+name = "port-bar-mcp"
+path = "src/bin/port-bar-mcp.rs"
+required-features = ["mcp-server"]
 
