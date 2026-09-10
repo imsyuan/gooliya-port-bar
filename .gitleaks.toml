@@ -1,0 +1,13 @@
+title = "gooliya-port-bar gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Known false positives"
+regexes = [
+  # Tauri updater public key in src-tauri/tauri.conf.json (plugins.updater.pubkey).
+  # Public by design — verifies update package signatures, it is not a secret.
+  # Gitleaks decodes the base64 blob and flags the embedded minisign key ID.
+  '''AD141283E3B675FE''',
+]

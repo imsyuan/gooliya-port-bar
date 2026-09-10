@@ -30,6 +30,9 @@ jobs:
         run: npm ci
 
       - name: Build Tauri app
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npm run tauri build -- --target universal-apple-darwin
 
       - name: Build port-bar-mcp (aarch64-apple-darwin)
@@ -88,10 +91,38 @@ jobs:
         working-directory: src-tauri/target/universal-apple-darwin/release/bundle/dmg
         run: shasum -a 256 *.dmg > checksums.txt
 
+      - name: Add a stable-named copy for updater artifacts
+        working-directory: src-tauri/target/universal-apple-darwin/release/bundle/macos
+        run: |
+          cp "$(ls *.app.tar.gz | head -n1)" "Gooliya-Port-Bar.app.tar.gz"
+          cp "$(ls *.app.tar.gz.sig | head -n1)" "Gooliya-Port-Bar.app.tar.gz.sig"
+
+      - name: Generate latest.json for the Tauri updater
+        run: |
+          APP_VERSION="$(grep -m1 '^version = ' src-tauri/Cargo.toml | cut -d '"' -f2)"
+          SIGNATURE="$(cat src-tauri/target/universal-apple-darwin/release/bundle/macos/Gooliya-Port-Bar.app.tar.gz.sig)"
+          PUB_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          DOWNLOAD_URL="https://github.com/imsyuan/gooliya-port-bar/releases/download/${GITHUB_REF_NAME}/Gooliya-Port-Bar.app.tar.gz"
+          cat > latest.json <<JSON
+          {
+            "version": "$APP_VERSION",
+            "notes": "See the GitHub Release for details.",
+            "pub_date": "$PUB_DATE",
+            "platforms": {
+              "darwin-aarch64": { "signature": "$SIGNATURE", "url": "$DOWNLOAD_URL" },
+              "darwin-x86_64": { "signature": "$SIGNATURE", "url": "$DOWNLOAD_URL" }
+            }
+          }
+          JSON
+          cat latest.json
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
             src-tauri/target/universal-apple-darwin/release/bundle/dmg/checksums.txt
+            src-tauri/target/universal-apple-darwin/release/bundle/macos/Gooliya-Port-Bar.app.tar.gz
+            src-tauri/target/universal-apple-darwin/release/bundle/macos/Gooliya-Port-Bar.app.tar.gz.sig
+            latest.json
           generate_release_notes: true

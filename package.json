@@ -1,6 +1,6 @@
 {
   "name": "gooliya-port-bar",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "A lightweight macOS menu bar app that scans local npm/Docker dev ports, with pin, rename, remove, and one-click open in browser",
   "author": "Gooliya <gooliya.dev@gmail.com> (https://gooliya.com)",
   "type": "module",
@@ -17,7 +17,9 @@
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-autostart": "^2.5.1",
     "@tauri-apps/plugin-opener": "^2.5.4",
-    "@tauri-apps/plugin-shell": "^2.3.5"
+    "@tauri-apps/plugin-process": "^2.3.1",
+    "@tauri-apps/plugin-shell": "^2.3.5",
+    "@tauri-apps/plugin-updater": "^2.11.0"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.6",
