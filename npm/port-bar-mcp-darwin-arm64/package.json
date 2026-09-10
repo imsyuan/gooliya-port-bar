@@ -1,0 +1,13 @@
+{
+  "name": "port-bar-mcp-darwin-arm64",
+  "version": "0.2.3",
+  "description": "Precompiled port-bar-mcp binary for macOS (Apple Silicon / arm64). Not meant to be installed directly — see the port-bar-mcp package.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imsyuan/gooliya-port-bar.git"
+  },
+  "os": ["darwin"],
+  "cpu": ["arm64"],
+  "files": ["port-bar-mcp"]
+}

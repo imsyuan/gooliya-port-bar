@@ -1,7 +1,10 @@
 <script lang="ts">
   import { invoke } from '@tauri-apps/api/core';
+  import { getVersion } from '@tauri-apps/api/app';
   import { openUrl } from '@tauri-apps/plugin-opener';
   import { enable, disable, isEnabled } from '@tauri-apps/plugin-autostart';
+  import { check, type Update } from '@tauri-apps/plugin-updater';
+  import { relaunch } from '@tauri-apps/plugin-process';
   import { getCurrentWindow } from '@tauri-apps/api/window';
   import { LogicalSize } from '@tauri-apps/api/dpi';
   import { onMount } from 'svelte';
@@ -17,15 +20,15 @@
   }
 
   function formatUptime(seconds: number): string {
-    if (seconds < 60) return '剛啟動';
+    if (seconds < 60) return 'Just started';
     const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes} 分鐘`;
+    if (minutes < 60) return `${minutes}m`;
     const hours = Math.floor(minutes / 60);
     const remMinutes = minutes % 60;
-    if (hours < 24) return `${hours} 小時 ${remMinutes} 分`;
+    if (hours < 24) return `${hours}h ${remMinutes}m`;
     const days = Math.floor(hours / 24);
     const remHours = hours % 24;
-    return `${days} 天 ${remHours} 小時`;
+    return `${days}d ${remHours}h`;
   }
 
   const IDLE_WARN_SECONDS = 3 * 60 * 60; // 3 小時
@@ -40,8 +43,8 @@
   }
 
   function idleTitle(level: IdleLevel): string | undefined {
-    if (level === 'danger') return '存活超過 1 天，可能忘記關了';
-    if (level === 'warn') return '存活超過 3 小時，留意一下';
+    if (level === 'danger') return 'Running over 1 day — might be forgotten';
+    if (level === 'warn') return 'Running over 3 hours — worth a look';
     return undefined;
   }
 
@@ -69,6 +72,13 @@
   let confirmingRemoveAll = $state(false);
   let removingAll = $state(false);
   let removeAllError = $state<string | null>(null);
+
+  type UpdateState = 'idle' | 'checking' | 'available' | 'downloading' | 'error';
+  let appVersion = $state('');
+  let updateState = $state<UpdateState>('idle');
+  let updateInfo = $state<Update | null>(null);
+  let updateError = $state<string | null>(null);
+  let confirmingUpdate = $state(false);
 
   let displayPorts = $derived.by(() => {
     const entries: DisplayEntry[] = rawPorts.map(p => {
@@ -230,7 +240,55 @@
 
   async function quitApp() { await invoke('quit_app'); }
 
+  async function checkForUpdate() {
+    if (updateState === 'checking' || updateState === 'downloading') return;
+    updateState = 'checking';
+    updateError = null;
+    try {
+      const result = await check();
+      if (result) {
+        updateInfo = result;
+        updateState = 'available';
+      } else {
+        updateInfo = null;
+        updateState = 'idle';
+      }
+    } catch (e) {
+      updateInfo = null;
+      updateState = 'error';
+      updateError = e instanceof Error ? e.message : String(e);
+    }
+  }
+
+  function onVersionClick() {
+    if (updateState === 'available') {
+      confirmingUpdate = true;
+    } else {
+      checkForUpdate();
+    }
+  }
+
+  function cancelUpdateConfirm() {
+    if (updateState === 'downloading') return;
+    confirmingUpdate = false;
+  }
+
+  async function installUpdate() {
+    if (!updateInfo) return;
+    updateState = 'downloading';
+    updateError = null;
+    try {
+      await updateInfo.downloadAndInstall();
+      await relaunch();
+    } catch (e) {
+      updateState = 'error';
+      updateError = e instanceof Error ? e.message : String(e);
+    }
+  }
+
   onMount(async () => {
+    getVersion().then(v => appVersion = v).catch(() => {});
+    checkForUpdate();
     await Promise.all([loadAutostart(), loadPrefs()]);
     await loadPorts();
     const win = getCurrentWindow();
@@ -366,6 +424,19 @@
 
   <div class="credits">
     <span class="credits-text">Made by 昌筱軒 <button class="credits-link" onclick={openHomepage}>@Gooliya</button></span>
+    {#if appVersion}
+      <button
+        class="version-btn"
+        onclick={onVersionClick}
+        disabled={updateState === 'checking' || updateState === 'downloading'}
+        title={updateState === 'available' ? `Update to v${updateInfo?.version} available` : 'Check for updates'}
+      >
+        {#if updateState === 'available'}
+          <span class="update-dot" aria-hidden="true"></span>
+        {/if}
+        v{appVersion}
+      </button>
+    {/if}
     <button class="issue-btn" onclick={openIssues}>提出 Issue</button>
   </div>
 
@@ -381,6 +452,26 @@
           <button class="modal-btn cancel" onclick={cancelRemoveAllConfirm} disabled={removingAll}>取消</button>
           <button class="modal-btn danger" onclick={confirmRemoveAll} disabled={removingAll}>
             {removingAll ? '移除中…' : '移除全部'}
+          </button>
+        </div>
+      </div>
+    </div>
+  {/if}
+
+  {#if confirmingUpdate && updateInfo}
+    <div class="modal-backdrop" onclick={cancelUpdateConfirm} role="presentation">
+      <div class="modal-card" onclick={(e) => e.stopPropagation()} onkeydown={(e) => { if (e.key === 'Escape') cancelUpdateConfirm(); }} role="dialog" aria-modal="true" tabindex="-1">
+        <span class="modal-title">Update to v{updateInfo.version}?</span>
+        <span class="modal-desc">
+          {updateState === 'downloading' ? 'Downloading and installing — the app will restart automatically.' : 'The app will restart to apply the update.'}
+        </span>
+        {#if updateState === 'error' && updateError}
+          <span class="modal-error">{updateError}</span>
+        {/if}
+        <div class="modal-actions">
+          <button class="modal-btn cancel" onclick={cancelUpdateConfirm} disabled={updateState === 'downloading'}>Cancel</button>
+          <button class="modal-btn primary" onclick={installUpdate} disabled={updateState === 'downloading'}>
+            {updateState === 'downloading' ? 'Updating…' : updateState === 'error' ? 'Retry' : 'Update now'}
           </button>
         </div>
       </div>
@@ -581,6 +672,19 @@
   }
   .credits-link:hover { color: #0a84ff; }
 
+  .version-btn {
+    flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px;
+    border: none; background: none; padding: 0; margin: 0;
+    font: inherit; font-size: 10px; color: rgba(255, 255, 255, 0.45);
+    cursor: pointer; transition: color 0.15s;
+  }
+  .version-btn:hover:not(:disabled) { color: #0a84ff; }
+  .version-btn:disabled { cursor: default; opacity: 0.6; }
+  .update-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #30d158; flex-shrink: 0;
+  }
+
   .issue-btn {
     flex-shrink: 0; border: 0.5px solid rgba(255, 255, 255, 0.14);
     background: none; border-radius: 99px; padding: 3px 9px;
@@ -628,4 +732,6 @@
   .modal-btn.cancel:hover:not(:disabled) { background: rgba(255, 255, 255, 0.16); }
   .modal-btn.danger { background: #ff453a; color: #fff; }
   .modal-btn.danger:hover:not(:disabled) { background: #ff6259; }
+  .modal-btn.primary { background: #0a84ff; color: #fff; }
+  .modal-btn.primary:hover:not(:disabled) { background: #3d9bff; }
 </style>

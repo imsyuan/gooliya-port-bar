@@ -1,6 +1,6 @@
 [package]
 name = "port-bar-mcp"
-version = "0.2.3"
+version = "0.3.0"
 description = "Standalone read-only MCP server for Gooliya Port Bar"
 authors = ["Gooliya <gooliya.dev@gmail.com>"]
 edition = "2021"
