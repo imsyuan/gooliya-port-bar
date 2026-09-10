@@ -10,6 +10,8 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .spectra/
 .spectra.yaml
+/npm/port-bar-mcp-darwin-arm64/port-bar-mcp
+/npm/port-bar-mcp-darwin-x64/port-bar-mcp
 openspec/.vector-search.db*
 /openspec/
 /.claude/

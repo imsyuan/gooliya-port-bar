@@ -47,22 +47,16 @@ Website: [port-bar.gooliya.com](https://port-bar.gooliya.com/)
 
 ## For AI coding agents (MCP)
 
-Gooliya Port Bar also ships a standalone, read-only [MCP](https://modelcontextprotocol.io/) server binary (`port-bar-mcp`) so an AI coding agent like Claude Code can check what's listening without you having to open the GUI. It talks stdio, doesn't open any network port, and only exposes two tools — `list_ports` and `list_idle_ports` — with no way to close or remove anything.
+Gooliya Port Bar also ships a standalone, read-only [MCP](https://modelcontextprotocol.io/) server (`@gooliya/port-bar-mcp`) so an AI coding agent like Claude Code can check what's listening without you having to open the GUI. It talks stdio, doesn't open any network port, and only exposes two tools — `list_ports` and `list_idle_ports` — with no way to close or remove anything.
 
-It's not bundled in the `.dmg` release yet; build it from source:
-
-```bash
-cd port-bar-mcp
-cargo build --release
-```
-
-Then point your MCP client at the built binary, e.g. in `.mcp.json`:
+No install needed — point your MCP client at `npx -y @gooliya/port-bar-mcp`, e.g. in `.mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "port-bar": {
-      "command": "/path/to/gooliya-port-bar/port-bar-mcp/target/release/port-bar-mcp"
+      "command": "npx",
+      "args": ["-y", "@gooliya/port-bar-mcp"]
     }
   }
 }

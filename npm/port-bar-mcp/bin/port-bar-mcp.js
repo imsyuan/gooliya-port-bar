@@ -5,8 +5,8 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 const PLATFORM_PACKAGES = {
-  'darwin-arm64': 'port-bar-mcp-darwin-arm64',
-  'darwin-x64': 'port-bar-mcp-darwin-x64',
+  'darwin-arm64': '@gooliya/port-bar-mcp-darwin-arm64',
+  'darwin-x64': '@gooliya/port-bar-mcp-darwin-x64',
 };
 
 function resolveBinaryPath() {

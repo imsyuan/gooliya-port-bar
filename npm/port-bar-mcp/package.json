@@ -1,7 +1,7 @@
 {
-  "name": "port-bar-mcp",
-  "version": "0.2.3",
-  "description": "Read-only MCP server for Gooliya Port Bar — query locally listening dev-server and Docker ports over stdio (list_ports, list_idle_ports). No install of the GUI app or a Rust toolchain required: npx -y port-bar-mcp",
+  "name": "@gooliya/port-bar-mcp",
+  "version": "0.3.0",
+  "description": "Read-only MCP server for Gooliya Port Bar — query locally listening dev-server and Docker ports over stdio (list_ports, list_idle_ports). No install of the GUI app or a Rust toolchain required: npx -y @gooliya/port-bar-mcp",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -15,7 +15,10 @@
   },
   "files": ["bin"],
   "optionalDependencies": {
-    "port-bar-mcp-darwin-arm64": "0.2.3",
-    "port-bar-mcp-darwin-x64": "0.2.3"
+    "@gooliya/port-bar-mcp-darwin-arm64": "0.3.0",
+    "@gooliya/port-bar-mcp-darwin-x64": "0.3.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
