@@ -49,7 +49,13 @@ English: [README.md](./README.md) | 繁體中文: [README.zh-TW.md](./README.zh-
 
 Gooliya Port Bar には、読み取り専用の独立した [MCP](https://modelcontextprotocol.io/) サーバー(`@gooliya/port-bar-mcp`)も同梱されています。Claude Code のような AI コーディングエージェントが、GUI を開かなくても現在リッスン中のポートを確認できます。通信は stdio のみでネットワークポートは一切開かず、公開するツールも `list_ports` と `list_idle_ports` の2つだけ —— サービスを閉じたり削除したりする手段は提供していません。
 
-インストール不要 —— MCP クライアントに `npx -y @gooliya/port-bar-mcp` を指定するだけです。例えば `.mcp.json`:
+インストール不要:
+
+```bash
+npx -y @gooliya/port-bar-mcp
+```
+
+MCP クライアント(例:Claude Code)に組み込む場合は、設定を同じコマンドに向けてください。例えば `.mcp.json`:
 
 ```json
 {

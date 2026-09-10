@@ -49,7 +49,13 @@ English: [README.md](./README.md) | 日本語: [README.ja.md](./README.ja.md)
 
 Gooliya Port Bar 也附了一個獨立、唯讀的 [MCP](https://modelcontextprotocol.io/) server(`@gooliya/port-bar-mcp`),讓 Claude Code 這類 AI coding agent 不用打開 GUI 就能查詢目前有哪些 port 在跑。走 stdio,不開任何網路 port,只曝露兩個工具 —— `list_ports`、`list_idle_ports`,沒有任何關閉/移除的能力。
 
-不用安裝 —— 把 MCP client 指向 `npx -y @gooliya/port-bar-mcp` 就好,例如寫進 `.mcp.json`:
+不用安裝:
+
+```bash
+npx -y @gooliya/port-bar-mcp
+```
+
+要接進 MCP client(例如 Claude Code),把設定指向同一行指令就好,例如寫進 `.mcp.json`:
 
 ```json
 {
