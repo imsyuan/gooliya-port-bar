@@ -423,7 +423,7 @@
   </footer>
 
   <div class="credits">
-    <span class="credits-text">Made by 昌筱軒 <button class="credits-link" onclick={openHomepage}>@Gooliya</button></span>
+    <span class="credits-text">Made by Steven Chang <button class="credits-link" onclick={openHomepage}>@Gooliya</button></span>
     {#if appVersion}
       <button
         class="version-btn"
