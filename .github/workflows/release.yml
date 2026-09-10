@@ -56,17 +56,17 @@ jobs:
           npm pkg set version="$MCP_VERSION" --prefix npm/port-bar-mcp-darwin-arm64
           npm pkg set version="$MCP_VERSION" --prefix npm/port-bar-mcp-darwin-x64
           npm pkg set version="$MCP_VERSION" --prefix npm/port-bar-mcp
-          npm pkg set optionalDependencies.port-bar-mcp-darwin-arm64="$MCP_VERSION" --prefix npm/port-bar-mcp
-          npm pkg set optionalDependencies.port-bar-mcp-darwin-x64="$MCP_VERSION" --prefix npm/port-bar-mcp
+          npm pkg set optionalDependencies.@gooliya/port-bar-mcp-darwin-arm64="$MCP_VERSION" --prefix npm/port-bar-mcp
+          npm pkg set optionalDependencies.@gooliya/port-bar-mcp-darwin-x64="$MCP_VERSION" --prefix npm/port-bar-mcp
 
       - name: Check whether this MCP package version is already published
         run: |
           MCP_VERSION="$(grep -m1 '^version = ' src-tauri/Cargo.toml | cut -d '"' -f2)"
-          if npm view "port-bar-mcp@$MCP_VERSION" version >/dev/null 2>&1; then
-            echo "port-bar-mcp@$MCP_VERSION is already published — skipping npm publish steps."
+          if npm view "@gooliya/port-bar-mcp@$MCP_VERSION" version >/dev/null 2>&1; then
+            echo "@gooliya/port-bar-mcp@$MCP_VERSION is already published — skipping npm publish steps."
             echo "SKIP_MCP_NPM_PUBLISH=true" >> "$GITHUB_ENV"
           else
-            echo "port-bar-mcp@$MCP_VERSION not yet published — will publish."
+            echo "@gooliya/port-bar-mcp@$MCP_VERSION not yet published — will publish."
             echo "SKIP_MCP_NPM_PUBLISH=false" >> "$GITHUB_ENV"
           fi
 

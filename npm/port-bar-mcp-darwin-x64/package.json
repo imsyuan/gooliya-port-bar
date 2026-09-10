@@ -1,7 +1,7 @@
 {
-  "name": "port-bar-mcp-darwin-x64",
-  "version": "0.2.3",
-  "description": "Precompiled port-bar-mcp binary for macOS (Intel / x64). Not meant to be installed directly — see the port-bar-mcp package.",
+  "name": "@gooliya/port-bar-mcp-darwin-x64",
+  "version": "0.3.0",
+  "description": "Precompiled port-bar-mcp binary for macOS (Intel / x64). Not meant to be installed directly — see the @gooliya/port-bar-mcp package.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -9,5 +9,8 @@
   },
   "os": ["darwin"],
   "cpu": ["x64"],
-  "files": ["port-bar-mcp"]
+  "files": ["port-bar-mcp"],
+  "publishConfig": {
+    "access": "public"
+  }
 }

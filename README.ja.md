@@ -47,22 +47,16 @@ English: [README.md](./README.md) | 繁體中文: [README.zh-TW.md](./README.zh-
 
 ## AI コーディングエージェント向け(MCP)
 
-Gooliya Port Bar には、読み取り専用の独立した [MCP](https://modelcontextprotocol.io/) サーバー実行ファイル(`port-bar-mcp`)も同梱されています。Claude Code のような AI コーディングエージェントが、GUI を開かなくても現在リッスン中のポートを確認できます。通信は stdio のみでネットワークポートは一切開かず、公開するツールも `list_ports` と `list_idle_ports` の2つだけ —— サービスを閉じたり削除したりする手段は提供していません。
+Gooliya Port Bar には、読み取り専用の独立した [MCP](https://modelcontextprotocol.io/) サーバー(`@gooliya/port-bar-mcp`)も同梱されています。Claude Code のような AI コーディングエージェントが、GUI を開かなくても現在リッスン中のポートを確認できます。通信は stdio のみでネットワークポートは一切開かず、公開するツールも `list_ports` と `list_idle_ports` の2つだけ —— サービスを閉じたり削除したりする手段は提供していません。
 
-まだ `.dmg` の release には同梱されていないため、ソースからビルドしてください:
-
-```bash
-cd port-bar-mcp
-cargo build --release
-```
-
-ビルドした実行ファイルを MCP クライアントに指定します。例えば `.mcp.json`:
+インストール不要 —— MCP クライアントに `npx -y @gooliya/port-bar-mcp` を指定するだけです。例えば `.mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "port-bar": {
-      "command": "/path/to/gooliya-port-bar/port-bar-mcp/target/release/port-bar-mcp"
+      "command": "npx",
+      "args": ["-y", "@gooliya/port-bar-mcp"]
     }
   }
 }
