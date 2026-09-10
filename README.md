@@ -49,7 +49,13 @@ Website: [port-bar.gooliya.com](https://port-bar.gooliya.com/)
 
 Gooliya Port Bar also ships a standalone, read-only [MCP](https://modelcontextprotocol.io/) server (`@gooliya/port-bar-mcp`) so an AI coding agent like Claude Code can check what's listening without you having to open the GUI. It talks stdio, doesn't open any network port, and only exposes two tools — `list_ports` and `list_idle_ports` — with no way to close or remove anything.
 
-No install needed — point your MCP client at `npx -y @gooliya/port-bar-mcp`, e.g. in `.mcp.json`:
+No install needed:
+
+```bash
+npx -y @gooliya/port-bar-mcp
+```
+
+To wire it into an MCP client (e.g. Claude Code), point its config at the same command, e.g. in `.mcp.json`:
 
 ```json
 {
