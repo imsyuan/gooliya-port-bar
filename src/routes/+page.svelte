@@ -78,7 +78,10 @@
   let updateState = $state<UpdateState>('idle');
   let updateInfo = $state<Update | null>(null);
   let updateError = $state<string | null>(null);
+  let installError = $state<string | null>(null);
   let confirmingUpdate = $state(false);
+  let justCheckedUpToDate = $state(false);
+  let upToDateTimer: ReturnType<typeof setTimeout> | undefined;
 
   let displayPorts = $derived.by(() => {
     const entries: DisplayEntry[] = rawPorts.map(p => {
@@ -113,6 +116,8 @@
     scanError;
     displayPorts;
     removeError;
+    updateState; // the update banner above the header changes the height
+    updateInfo;
     fitWindow();
   });
 
@@ -240,10 +245,13 @@
 
   async function quitApp() { await invoke('quit_app'); }
 
-  async function checkForUpdate() {
+  // `manual` is true when the user clicked the version label, so a "no update"
+  // result gets visible feedback instead of silently doing nothing.
+  async function checkForUpdate(manual = false) {
     if (updateState === 'checking' || updateState === 'downloading') return;
     updateState = 'checking';
     updateError = null;
+    justCheckedUpToDate = false;
     try {
       const result = await check();
       if (result) {
@@ -252,6 +260,11 @@
       } else {
         updateInfo = null;
         updateState = 'idle';
+        if (manual) {
+          justCheckedUpToDate = true;
+          clearTimeout(upToDateTimer);
+          upToDateTimer = setTimeout(() => (justCheckedUpToDate = false), 2500);
+        }
       }
     } catch (e) {
       updateInfo = null;
@@ -260,11 +273,16 @@
     }
   }
 
+  function openUpdateConfirm() {
+    installError = null;
+    confirmingUpdate = true;
+  }
+
   function onVersionClick() {
     if (updateState === 'available') {
-      confirmingUpdate = true;
+      openUpdateConfirm();
     } else {
-      checkForUpdate();
+      checkForUpdate(true);
     }
   }
 
@@ -276,13 +294,14 @@
   async function installUpdate() {
     if (!updateInfo) return;
     updateState = 'downloading';
-    updateError = null;
+    installError = null;
     try {
       await updateInfo.downloadAndInstall();
       await relaunch();
     } catch (e) {
-      updateState = 'error';
-      updateError = e instanceof Error ? e.message : String(e);
+      // the update is still available — keep the banner, show the error in the dialog
+      updateState = 'available';
+      installError = e instanceof Error ? e.message : String(e);
     }
   }
 
@@ -299,6 +318,21 @@
 </script>
 
 <div class="app">
+  {#if updateInfo && (updateState === 'available' || updateState === 'downloading')}
+    <div class="update-banner" role="status">
+      <span class="update-banner__text">
+        <svg class="update-banner__icon" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 19V5"/>
+          <path d="m5 12 7-7 7 7"/>
+        </svg>
+        Update available: <strong>v{updateInfo.version}</strong>
+      </span>
+      <button class="update-banner__btn" onclick={openUpdateConfirm} disabled={updateState === 'downloading'}>
+        {updateState === 'downloading' ? 'Updating…' : 'Update'}
+      </button>
+    </div>
+  {/if}
+
   <header>
     <div class="header-left">
       <span class="logo">⬡</span>
@@ -427,14 +461,20 @@
     {#if appVersion}
       <button
         class="version-btn"
+        class:error={updateState === 'error'}
         onclick={onVersionClick}
         disabled={updateState === 'checking' || updateState === 'downloading'}
-        title={updateState === 'available' ? `Update to v${updateInfo?.version} available` : 'Check for updates'}
+        title={updateState === 'error' ? (updateError ?? 'Update check failed') : 'Check for updates'}
       >
-        {#if updateState === 'available'}
-          <span class="update-dot" aria-hidden="true"></span>
+        {#if updateState === 'checking'}
+          Checking…
+        {:else if updateState === 'error'}
+          Check failed · Retry
+        {:else if justCheckedUpToDate}
+          Up to date
+        {:else}
+          v{appVersion}
         {/if}
-        v{appVersion}
       </button>
     {/if}
     <button class="issue-btn" onclick={openIssues}>提出 Issue</button>
@@ -465,13 +505,13 @@
         <span class="modal-desc">
           {updateState === 'downloading' ? 'Downloading and installing — the app will restart automatically.' : 'The app will restart to apply the update.'}
         </span>
-        {#if updateState === 'error' && updateError}
-          <span class="modal-error">{updateError}</span>
+        {#if installError}
+          <span class="modal-error">{installError}</span>
         {/if}
         <div class="modal-actions">
           <button class="modal-btn cancel" onclick={cancelUpdateConfirm} disabled={updateState === 'downloading'}>Cancel</button>
           <button class="modal-btn primary" onclick={installUpdate} disabled={updateState === 'downloading'}>
-            {updateState === 'downloading' ? 'Updating…' : updateState === 'error' ? 'Retry' : 'Update now'}
+            {updateState === 'downloading' ? 'Updating…' : installError ? 'Retry' : 'Update now'}
           </button>
         </div>
       </div>
@@ -499,6 +539,27 @@
     overflow: hidden;
     color: #f5f5f7;
   }
+
+  .update-banner {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 8px 12px;
+    background: rgba(10, 132, 255, 0.18);
+    border-bottom: 0.5px solid rgba(10, 132, 255, 0.35);
+  }
+  .update-banner__text {
+    display: inline-flex; align-items: center; gap: 6px; min-width: 0;
+    font-size: 12px; color: #f5f5f7;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .update-banner__text strong { font-weight: 700; }
+  .update-banner__icon { flex-shrink: 0; color: #0a84ff; }
+  .update-banner__btn {
+    flex-shrink: 0; border: none; border-radius: 99px; padding: 4px 12px;
+    font-size: 11px; font-weight: 600; background: #0a84ff; color: #fff;
+    cursor: pointer; transition: background 0.15s, opacity 0.15s;
+  }
+  .update-banner__btn:hover:not(:disabled) { background: #3d9bff; }
+  .update-banner__btn:disabled { cursor: default; opacity: 0.6; }
 
   header {
     display: flex;
@@ -680,10 +741,7 @@
   }
   .version-btn:hover:not(:disabled) { color: #0a84ff; }
   .version-btn:disabled { cursor: default; opacity: 0.6; }
-  .update-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: #30d158; flex-shrink: 0;
-  }
+  .version-btn.error { color: #ff9f0a; }
 
   .issue-btn {
     flex-shrink: 0; border: 0.5px solid rgba(255, 255, 255, 0.14);
