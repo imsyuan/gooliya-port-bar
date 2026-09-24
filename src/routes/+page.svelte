@@ -197,7 +197,7 @@
     removingAll = false;
     await loadPorts();
     if (failedCount > 0) {
-      removeAllError = `${failedCount} 個服務移除失敗,可能已自行關閉`;
+      removeAllError = `Failed to remove ${failedCount} service${failedCount > 1 ? 's' : ''} — may have already stopped`;
     } else {
       confirmingRemoveAll = false;
     }
@@ -371,15 +371,15 @@
     {#if portsLoading}
       <div class="state-center">
         <div class="spinner"></div>
-        <span class="state-text">掃描中…</span>
+        <span class="state-text">Scanning…</span>
       </div>
     {:else if scanError}
       <div class="state-center">
-        <span class="state-text error">無法取得 port 資訊</span>
+        <span class="state-text error">Couldn't read port info</span>
       </div>
     {:else if displayPorts.length === 0}
       <div class="state-center">
-        <span class="state-text">目前沒有執行中的服務</span>
+        <span class="state-text">No services running</span>
       </div>
     {:else}
       <ul class="port-list">
@@ -403,7 +403,7 @@
                       onclick={(e) => e.stopPropagation()}
                     />
                   {:else}
-                    <span class="project-name" title="點擊編輯名稱"
+                    <span class="project-name" title="Click to rename"
                       onclick={(e) => { e.stopPropagation(); startEdit(entry); }}
                       role="button" tabindex="0"
                       onkeydown={(e) => e.key === 'Enter' && startEdit(entry)}
@@ -427,7 +427,7 @@
                 aria-label={confirmingRemove === entry.port ? 'Confirm remove' : 'Remove'}
               >
                 {#if confirmingRemove === entry.port}
-                  <span class="remove-confirm-text">確定?</span>
+                  <span class="remove-confirm-text">Sure?</span>
                 {:else}
                   <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 6h18"/>
@@ -457,7 +457,7 @@
   </footer>
 
   <div class="credits">
-    <span class="credits-text">Made by Steven Chang <button class="credits-link" onclick={openHomepage}>@Gooliya</button></span>
+    <span class="credits-text">Made in TW by Steven Chang <button class="credits-link" onclick={openHomepage}>@Gooliya</button></span>
     {#if appVersion}
       <button
         class="version-btn"
@@ -477,21 +477,21 @@
         {/if}
       </button>
     {/if}
-    <button class="issue-btn" onclick={openIssues}>提出 Issue</button>
+    <button class="issue-btn" onclick={openIssues}>Report Issue</button>
   </div>
 
   {#if confirmingRemoveAll}
     <div class="modal-backdrop" onclick={cancelRemoveAllConfirm} role="presentation">
       <div class="modal-card" onclick={(e) => e.stopPropagation()} onkeydown={(e) => { if (e.key === 'Escape') cancelRemoveAllConfirm(); }} role="dialog" aria-modal="true" tabindex="-1">
-        <span class="modal-title">移除所有服務?</span>
-        <span class="modal-desc">將關閉目前 {displayPorts.length} 個正在監聽的服務,此動作無法復原。</span>
+        <span class="modal-title">Remove all services?</span>
+        <span class="modal-desc">This will stop all {displayPorts.length} currently listening services. This can't be undone.</span>
         {#if removeAllError}
           <span class="modal-error">{removeAllError}</span>
         {/if}
         <div class="modal-actions">
-          <button class="modal-btn cancel" onclick={cancelRemoveAllConfirm} disabled={removingAll}>取消</button>
+          <button class="modal-btn cancel" onclick={cancelRemoveAllConfirm} disabled={removingAll}>Cancel</button>
           <button class="modal-btn danger" onclick={confirmRemoveAll} disabled={removingAll}>
-            {removingAll ? '移除中…' : '移除全部'}
+            {removingAll ? 'Removing…' : 'Remove All'}
           </button>
         </div>
       </div>

@@ -164,7 +164,7 @@ fn parse_docker_uptime_seconds(status: &str) -> u64 {
 fn check_command_available(path: &str) -> Result<(), String> {
     match Command::new(path).arg("-v").output() {
         Ok(_) => Ok(()),
-        Err(_) => Err(format!("找不到必要的系統工具：{path}")),
+        Err(_) => Err(format!("Required system tool not found: {path}")),
     }
 }
 
@@ -289,7 +289,7 @@ fn kill_port_impl(port: u16, port_type: &str, project: &str) -> Result<(), Strin
     match port_type {
         "npm" => {
             let pid = find_pid_for_port(port)
-                .ok_or_else(|| format!("port {port} 已無服務在監聽,可能已經關閉"))?;
+                .ok_or_else(|| format!("Nothing is listening on port {port} anymore — it may have already stopped"))?;
             let status = Command::new("kill")
                 .arg(pid.to_string())
                 .status()
@@ -297,12 +297,12 @@ fn kill_port_impl(port: u16, port_type: &str, project: &str) -> Result<(), Strin
             if status.success() {
                 Ok(())
             } else {
-                Err(format!("終止行程 {pid} 失敗"))
+                Err(format!("Failed to kill process {pid}"))
             }
         }
         "docker" => {
             if project.is_empty() {
-                return Err("找不到容器名稱,無法停止服務".to_string());
+                return Err("Container name not found; can't stop the service".to_string());
             }
             let output = Command::new("docker")
                 .args(["stop", project])
@@ -313,13 +313,13 @@ fn kill_port_impl(port: u16, port_type: &str, project: &str) -> Result<(), Strin
             } else {
                 let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
                 Err(if stderr.is_empty() {
-                    format!("停止容器 {project} 失敗")
+                    format!("Failed to stop container {project}")
                 } else {
                     stderr
                 })
             }
         }
-        other => Err(format!("不支援的服務類型:{other}")),
+        other => Err(format!("Unsupported service type: {other}")),
     }
 }
 
@@ -389,7 +389,7 @@ pub fn run() {
             window.set_skip_taskbar(true).ok();
             apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, Some(14.0)).ok();
 
-            let quit_item = MenuItem::with_id(app, "quit", "結束 Port Bar", true, None::<&str>)?;
+            let quit_item = MenuItem::with_id(app, "quit", "Quit Port Bar", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&quit_item])?;
 
             let tray = app.tray_by_id("main").unwrap();
