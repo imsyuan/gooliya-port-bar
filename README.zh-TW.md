@@ -14,7 +14,7 @@ English: [README.md](./README.md) | 日本語: [README.ja.md](./README.ja.md)
 
 ## 功能
 
-- 列出本機所有正在監聽的 port,包含 Node 開發伺服器(`vite`、`astro`、`next`、`tsx`/`ts-node` 等)與 Docker container
+- 列出本機所有正在監聽的 port,包含 Node 開發伺服器(`vite`、`astro`、`next`、`tsx`/`ts-node` 等)與 Docker container(Docker Desktop、OrbStack、Colima 等)
 - 點擊 port 項目直接用預設瀏覽器開啟
 - 釘選常用項目,固定在清單最上方
 - 幫任一項目自訂顯示名稱
@@ -25,6 +25,19 @@ English: [README.md](./README.md) | 日本語: [README.ja.md](./README.ja.md)
 - 可選擇開機自動啟動
 - 完全常駐選單列,不佔用 Dock
 - 單一實例執行 —— 重複啟動 app 只會把現有視窗喚醒並取得焦點,不會開出重複的實例
+
+## 近期更新
+
+### v0.3.2 · 2026-10-05
+- **修正:** Docker container 現在在 OrbStack、Colima、Podman 下也能偵測,不再只支援 Docker Desktop。Port Bar 改為直接讀取 `docker ps`,不再用行程名稱推測。
+- **變更:** App 內所有文字改為英文。
+- **更新:** 重新製作 demo 影片與截圖。
+- **MCP:** MCP server 與 App 共用同一套掃描邏輯,同樣獲得 Docker 修正。
+
+### v0.3.1 · 2026-09-15
+- **變更:** App 內更新提示改為明確詢問,安裝前會先徵求你的同意。
+- **變更:** 致謝名單改用英文名。
+- **文件:** `npx` 安裝指令獨立成醒目的程式碼區塊。
 
 ## 安裝
 
