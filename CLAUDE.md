@@ -77,5 +77,5 @@ App setup (in `run()`) wires up macOS-specific tray/menu behavior: a `tauri_plug
 
 ## Notes
 
-- UI strings and comments in the Svelte component are in Traditional Chinese (繁體中文) — keep new user-facing strings consistent with that.
+- User-facing UI strings (Svelte component and Rust error/menu messages) are in English — keep new ones consistent with that. Code comments may be in Traditional Chinese (繁體中文).
 - `infer_project_name` assumes projects live under a `/workspace/<name>/` path segment; `infer_cmd_label` does substring sniffing for `vite`/`astro`/`next`/`tsx`/`ts-node`/a hardcoded `hipki` project. Both are intentionally simple heuristics with Rust unit tests in `src-tauri/src/lib.rs` — extend the tests alongside any change to this matching logic.

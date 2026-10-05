@@ -10,11 +10,11 @@ Website: [port-bar.gooliya.com](https://port-bar.gooliya.com/)
 
 <img src="./assets/screenshot.png" alt="Gooliya Port Bar popover screenshot" width="360" />
 
-[![Watch the 30-second demo video](./assets/demo-poster.png)](./assets/demo.mp4)
+[![Watch the demo video](./assets/demo-poster.png)](./assets/demo.mp4)
 
 ## Features
 
-- Lists all locally listening ports from Node dev servers (`vite`, `astro`, `next`, `tsx`/`ts-node`, ...) and Docker containers
+- Lists all locally listening ports from Node dev servers (`vite`, `astro`, `next`, `tsx`/`ts-node`, ...) and Docker containers (Docker Desktop, OrbStack, Colima, ...)
 - Click a port to open it in your default browser
 - Pin favorites to keep them at the top of the list
 - Rename any entry with a custom label
@@ -25,6 +25,19 @@ Website: [port-bar.gooliya.com](https://port-bar.gooliya.com/)
 - Optional launch-at-login
 - Lives entirely in the menu bar — no Dock icon
 - Single-instance — relaunching the app just focuses the existing popover instead of opening a duplicate
+
+## Recent updates
+
+### v0.3.2 · 2026-10-05
+- **Fix:** Docker containers are now detected on OrbStack, Colima, and Podman — not just Docker Desktop. Port Bar reads running containers straight from `docker ps` instead of guessing from the process name.
+- **Change:** All in-app text is now in English.
+- **New:** Refreshed demo video and screenshot.
+- **MCP:** The MCP server shares the same scanner, so it gets the Docker fix too.
+
+### v0.3.1 · 2026-09-15
+- **Change:** The in-app update prompt is now explicit — it asks before installing.
+- **Change:** Credits now show the English name.
+- **Docs:** The `npx` install command has its own highlighted code block.
 
 ## Install
 

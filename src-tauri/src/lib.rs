@@ -81,25 +81,80 @@ fn infer_project_name(full_cmd: &str) -> String {
         .unwrap_or_default()
 }
 
-/// Returns `(container_name, status)` for the docker container publishing
-/// `port`, where `status` is docker's raw `Status` string (e.g. "Up 3 hours").
-fn get_docker_container_info(port: u16) -> Option<(String, String)> {
+/// 找 docker CLI：GUI app 的 PATH 通常不含 /usr/local/bin、/opt/homebrew/bin，
+/// 所以先試常見絕對路徑（Docker Desktop / Homebrew / OrbStack），最後才退回 PATH。
+fn docker_bin() -> String {
+    let home = std::env::var("HOME").unwrap_or_default();
+    let candidates = [
+        "/usr/local/bin/docker".to_string(),
+        "/opt/homebrew/bin/docker".to_string(),
+        format!("{home}/.orbstack/bin/docker"),
+    ];
+    candidates
+        .into_iter()
+        .find(|p| std::path::Path::new(p).exists())
+        .unwrap_or_else(|| "docker".to_string())
+}
+
+/// Expands the host side of a docker `Ports` column into published host ports.
+/// e.g. "0.0.0.0:3100->3100/tcp, [::]:3100->3100/tcp, 8000/tcp" -> [3100];
+/// ranges like "0.0.0.0:8000-8002->8000-8002/tcp" -> [8000, 8001, 8002].
+/// Entries without `->` (unpublished ports) are ignored.
+fn parse_docker_host_ports(ports: &str) -> Vec<u16> {
+    let mut out: Vec<u16> = Vec::new();
+    for item in ports.split(',') {
+        let Some((host, _)) = item.trim().split_once("->") else {
+            continue;
+        };
+        let host_port = host.rsplit(':').next().unwrap_or("");
+        let (start, end) = match host_port.split_once('-') {
+            Some((a, b)) => (a.parse::<u16>().ok(), b.parse::<u16>().ok()),
+            None => (host_port.parse::<u16>().ok(), host_port.parse::<u16>().ok()),
+        };
+        if let (Some(s), Some(e)) = (start, end) {
+            for p in s..=e {
+                if !out.contains(&p) {
+                    out.push(p);
+                }
+            }
+        }
+    }
+    out
+}
+
+/// Returns `(container_name, host_port, status)` for every published host port
+/// of every running container, straight from `docker ps` — independent of which
+/// runtime (Docker Desktop / OrbStack / Colima / Podman) owns the listening
+/// socket, so we no longer depend on the `lsof` process name.
+/// `status` is docker's raw `Status` string (e.g. "Up 3 hours").
+fn list_docker_ports() -> Vec<(String, u16, String)> {
+    let bin = docker_bin();
     let (tx, rx) = std::sync::mpsc::channel();
     std::thread::spawn(move || {
-        let result = Command::new("docker")
+        let result = Command::new(bin)
             .args(["ps", "--format", "{{.Names}}\t{{.Ports}}\t{{.Status}}"])
             .output();
         let _ = tx.send(result);
     });
-    let output = rx.recv_timeout(std::time::Duration::from_secs(2)).ok()?.ok()?;
+    let Some(output) = rx
+        .recv_timeout(std::time::Duration::from_secs(2))
+        .ok()
+        .and_then(|r| r.ok())
+    else {
+        return vec![];
+    };
     let stdout = String::from_utf8_lossy(&output.stdout);
+    let mut results = Vec::new();
     for line in stdout.lines() {
         let parts: Vec<&str> = line.splitn(3, '\t').collect();
-        if parts.len() == 3 && parts[1].contains(&format!(":{port}->")) {
-            return Some((parts[0].to_string(), parts[2].to_string()));
+        if parts.len() != 3 {
+            continue;
+        }
+        for port in parse_docker_host_ports(parts[1]) {
+            results.push((parts[0].to_string(), port, parts[2].to_string()));
         }
     }
-    None
+    results
 }
 
 /// Parses a docker `Status` string (e.g. "Up 3 hours", "Up 2 days",
@@ -164,7 +219,7 @@ fn parse_docker_uptime_seconds(status: &str) -> u64 {
 fn check_command_available(path: &str) -> Result<(), String> {
     match Command::new(path).arg("-v").output() {
         Ok(_) => Ok(()),
-        Err(_) => Err(format!("找不到必要的系統工具：{path}")),
+        Err(_) => Err(format!("Required system tool not found: {path}")),
     }
 }
 
@@ -213,10 +268,9 @@ pub fn scan_ports() -> Vec<PortEntry> {
         let pid: u32 = pid_str.parse().unwrap_or(0);
 
         let is_node = process_name == "node" || process_name == "node.js";
-        let is_docker = process_name == "docker"
-            || process_name.starts_with("com.docker")
-            || process_name.starts_with("com.docke");
 
+        // Docker 容器改由下方 `docker ps` 統一處理，不再依賴 lsof 的行程名
+        // （Docker Desktop 是 com.docker.*，OrbStack 是 OrbStack，各 runtime 不同）。
         if is_node {
             let ps_output = Command::new("ps")
                 .args(["-p", pid_str, "-o", "etime=,command="])
@@ -248,23 +302,23 @@ pub fn scan_ports() -> Vec<PortEntry> {
                 uptime_seconds,
                 is_idle,
             });
-        } else if is_docker {
-            let (container_name, status) = get_docker_container_info(port)
-                .unwrap_or_else(|| ("docker".to_string(), String::new()));
-            let uptime_seconds = parse_docker_uptime_seconds(&status);
-            let is_idle = is_idle_from_uptime(uptime_seconds);
-
-            seen_ports.insert(port);
-            results.push(PortEntry {
-                port,
-                port_type: "docker".to_string(),
-                project: container_name.clone(),
-                cmd: "docker container".to_string(),
-                pid,
-                uptime_seconds,
-                is_idle,
-            });
         }
+    }
+
+    for (container_name, port, status) in list_docker_ports() {
+        if !seen_ports.insert(port) {
+            continue;
+        }
+        let uptime_seconds = parse_docker_uptime_seconds(&status);
+        results.push(PortEntry {
+            port,
+            port_type: "docker".to_string(),
+            project: container_name,
+            cmd: "docker container".to_string(),
+            pid: 0,
+            uptime_seconds,
+            is_idle: is_idle_from_uptime(uptime_seconds),
+        });
     }
 
     results.sort_by_key(|e| e.port);
@@ -289,7 +343,7 @@ fn kill_port_impl(port: u16, port_type: &str, project: &str) -> Result<(), Strin
     match port_type {
         "npm" => {
             let pid = find_pid_for_port(port)
-                .ok_or_else(|| format!("port {port} 已無服務在監聽,可能已經關閉"))?;
+                .ok_or_else(|| format!("Nothing is listening on port {port} anymore — it may have already stopped"))?;
             let status = Command::new("kill")
                 .arg(pid.to_string())
                 .status()
@@ -297,14 +351,14 @@ fn kill_port_impl(port: u16, port_type: &str, project: &str) -> Result<(), Strin
             if status.success() {
                 Ok(())
             } else {
-                Err(format!("終止行程 {pid} 失敗"))
+                Err(format!("Failed to kill process {pid}"))
             }
         }
         "docker" => {
             if project.is_empty() {
-                return Err("找不到容器名稱,無法停止服務".to_string());
+                return Err("Container name not found; can't stop the service".to_string());
             }
-            let output = Command::new("docker")
+            let output = Command::new(docker_bin())
                 .args(["stop", project])
                 .output()
                 .map_err(|e| e.to_string())?;
@@ -313,13 +367,13 @@ fn kill_port_impl(port: u16, port_type: &str, project: &str) -> Result<(), Strin
             } else {
                 let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
                 Err(if stderr.is_empty() {
-                    format!("停止容器 {project} 失敗")
+                    format!("Failed to stop container {project}")
                 } else {
                     stderr
                 })
             }
         }
-        other => Err(format!("不支援的服務類型:{other}")),
+        other => Err(format!("Unsupported service type: {other}")),
     }
 }
 
@@ -389,7 +443,7 @@ pub fn run() {
             window.set_skip_taskbar(true).ok();
             apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, Some(14.0)).ok();
 
-            let quit_item = MenuItem::with_id(app, "quit", "結束 Port Bar", true, None::<&str>)?;
+            let quit_item = MenuItem::with_id(app, "quit", "Quit Port Bar", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&quit_item])?;
 
             let tray = app.tray_by_id("main").unwrap();
@@ -564,6 +618,26 @@ mod tests {
     fn test_parse_etime_seconds_unparseable_returns_none() {
         assert_eq!(parse_etime_seconds(""), None);
         assert_eq!(parse_etime_seconds("not-a-time"), None);
+    }
+
+    #[test]
+    fn test_parse_docker_host_ports() {
+        assert_eq!(
+            parse_docker_host_ports("0.0.0.0:3100->3100/tcp, [::]:3100->3100/tcp"),
+            vec![3100]
+        );
+        assert_eq!(parse_docker_host_ports("127.0.0.1:3101->3000/tcp"), vec![3101]);
+        // 未發佈的 port（沒有 ->）要略過
+        assert_eq!(parse_docker_host_ports("5432/tcp"), Vec::<u16>::new());
+        assert_eq!(
+            parse_docker_host_ports("0.0.0.0:5174->5174/tcp, 8000/tcp, 0.0.0.0:8888->80/tcp"),
+            vec![5174, 8888]
+        );
+        assert_eq!(
+            parse_docker_host_ports("0.0.0.0:8000-8002->8000-8002/tcp"),
+            vec![8000, 8001, 8002]
+        );
+        assert_eq!(parse_docker_host_ports(""), Vec::<u16>::new());
     }
 
     #[test]
